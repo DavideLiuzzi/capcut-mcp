@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "capcut-mcp",
   "display_name": "CapCut – montaggio bozze",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Claude legge e monta le bozze di CapCut desktop: premontaggio automatico, trascrizione offline, clip, testi, transizioni, file da Higgsfield.",
   "long_description": "Collega Claude alle bozze di **CapCut desktop** sul tuo PC.\n\n- **Premontaggio**: trascrive il girato con Whisper (offline, sul PC), riconosce silenzi e frasi interrotte e ricostruisce la traccia principale tenendo tutte le prese complete.\n- **Montaggio**: aggiunge video, immagini, audio e testi; sposta, taglia, divide; copia transizioni e animazioni da clip che le hanno già.\n- **Media**: scarica i file generati (es. con Higgsfield), mostra fotogrammi a Claude, converte con ffmpeg.\n- **Sicurezza**: non salva mai con CapCut aperto, fa un backup a ogni salvataggio e permette di tornare indietro.\n\nLa prima volta chiedi a Claude di eseguire `capcut_setup`: installa ffmpeg e scarica il modello Whisper (circa 600 MB).",
   "author": {

@@ -17,6 +17,7 @@ export const DRAFTS_DIR = CANDIDATES.find(isDir) || (process.platform === 'win32
 const TEMPLATE_DRAFT = cfg(process.env.CAPCUT_TEMPLATE_DRAFT);
 const BACKUP_DIR = path.join(APP_DIR, 'backups');
 const KEEP_BACKUPS = 25;
+const TEXT_LAYER = 14000;   // CapCut's render_index band for text layers (always drawn above media)
 
 const uid = () => crypto.randomUUID().toUpperCase();
 const clone = o => JSON.parse(JSON.stringify(o));
@@ -170,7 +171,16 @@ export class CapCutDraft {
     return (this._tpl = t);
   }
   _mats(key) { this.content.materials[key] = this.content.materials[key] || []; return this.content.materials[key]; }
-  _nextRender() { let m = -1; for (const tr of this.content.tracks) for (const s of (tr.segments || [])) if ((s.render_index || 0) > m) m = s.render_index; return m + 1; }
+  // CapCut layers by render_index: media count up from 0, texts live in their own band from 14000,
+  // so captions and titles always stay above overlay videos added later (as in CapCut's own drafts)
+  _nextRender(kind = 'media') {
+    let m = kind === 'text' ? TEXT_LAYER - 1 : -1;
+    for (const tr of this.content.tracks) for (const s of (tr.segments || [])) {
+      const r = s.render_index || 0;
+      if ((kind === 'text') === (r >= TEXT_LAYER) && r > m) m = r;
+    }
+    return m + 1;
+  }
   _fps() { return this.content.fps || 30; }
   _frame(us) { const f = this._fps(); return Math.round(Math.round(us * f / US) * US / f); }   // snap to a frame
   _matPath(seg) { const [, m] = findMat(this.content, seg.material_id); return m && m.path ? m.path : ''; }
@@ -322,7 +332,7 @@ export class CapCutDraft {
     seg.target_timerange = { start: at, duration: dur };
     seg.source_timerange = { start: 0, duration: dur };
     this._applyProps(seg, opts);
-    seg.render_index = this._nextRender();
+    seg.render_index = this._nextRender('text');
     const track = this._resolveTrack(opts, 'text', at, dur);
     seg.track_render_index = opts.trackRenderIndex != null ? opts.trackRenderIndex : this.content.tracks.indexOf(track);
     track.segments.push(seg);

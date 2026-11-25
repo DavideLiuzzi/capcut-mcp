@@ -3,6 +3,7 @@
 /scripts/
 /skills/
 /backup/
+/.claude/
 /mcp.json.example
 *.mcpbak
 *.tmp

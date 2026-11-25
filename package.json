@@ -1,6 +1,6 @@
 {
   "name": "capcut-mcp",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "MCP server that lets Claude read and edit CapCut desktop draft projects.",
   "type": "module",
   "bin": {

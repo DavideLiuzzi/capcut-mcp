@@ -9,7 +9,7 @@ import path from 'path';
 import { CapCutDraft, cloneDraft, listDrafts, listBackups, restoreBackup, styleLibrary, capcutRunning, DRAFTS_DIR, STYLE_KINDS } from './core.js';
 import * as media from './media.js';
 
-const VERSION = '0.3.0';
+const VERSION = '0.3.1';
 const US = 1e6;
 const open = new Map();                       // name -> live CapCutDraft (unsaved edits)
 const get = name => { if (!open.has(name)) open.set(name, new CapCutDraft(name)); return open.get(name); };
