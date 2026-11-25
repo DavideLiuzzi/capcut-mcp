@@ -29,7 +29,7 @@ Build both files with `npm install && npm run bundle` → `dist/`. Windows only 
 
 ## Install
 ```bash
-git clone https://github.com/JmsLdrn/capcut-mcp
+git clone https://github.com/DavideLiuzzi/capcut-mcp
 cd capcut-mcp
 npm install
 ```
