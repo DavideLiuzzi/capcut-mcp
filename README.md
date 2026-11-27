@@ -14,7 +14,7 @@ An MCP server that lets Claude **read and edit CapCut desktop draft projects** �
    - **Windows 10/11**: ffmpeg via winget (`Gyan.FFmpeg`); data in `%LOCALAPPDATA%\capcut-mcp`.
    - **macOS (Apple silicon, macOS 15+)**: install [Homebrew](https://brew.sh) first; setup then runs `brew install ffmpeg-full` (the regular `ffmpeg` formula has no `whisper` filter); data in `~/Library/Application Support/capcut-mcp`. Intel Macs: no automatic setup (Homebrew no longer ships Intel bottles).
 
-Build both files with `npm install && npm run bundle` → `dist/`. The same `.mcpb` works on Windows and macOS. Italian user guides: `dist/Guida-Claude-CapCut.pdf` (Windows) and `dist/Guida-Claude-CapCut-Mac.pdf` (source: `docs/guida-mac.html`).
+Build both files with `npm install && npm run bundle` → `dist/`. The same `.mcpb` works on Windows and macOS. Italian user guides: `dist/Guida-Claude-CapCut.pdf` (Windows, source `docs/guida-windows.html`) and `dist/Guida-Claude-CapCut-Mac.pdf` (Mac, source `docs/guida-mac.html`); print them to PDF with Edge/Chrome headless (command in each file's header comment).
 
 ## Requirements (manual / Claude Code setup)
 - **Node 18+**

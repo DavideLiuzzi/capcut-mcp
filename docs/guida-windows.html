@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Claude × CapCut – Guida Windows</title>
+<!-- Sorgente della guida per Windows. PDF (A4): msedge --headless=new --no-pdf-header-footer --print-to-pdf=dist/Guida-Claude-CapCut.pdf docs/guida-windows.html -->
+<style>
+  :root {
+    --navy: #253446; --ink: #1f2933; --muted: #5f6b7a; --line: #e3e7ec;
+    --accent: #c8502e; --salmon: #eba58b; --accent-soft: #fbece5; --accent-line: #f1c7b6;
+    --green: #2b7a67; --green-bg: #e8f3ef; --amber: #a86410; --amber-bg: #fdf3e1;
+    --grey-bg: #f3f5f7; --grey-line: #9aa5b1; --red: #b42318;
+  }
+  @page { size: A4; margin: 14mm 17mm 16mm 17mm;
+    @bottom-left { content: "Claude × CapCut · Guida per Windows"; font: 8pt "Segoe UI", sans-serif; color: #8a96a3; }
+    @bottom-right { content: counter(page); font: 8pt "Segoe UI", sans-serif; color: #8a96a3; }
+  }
+  @page cover { margin: 0; @bottom-left { content: none; } @bottom-right { content: none; } }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; font-family: "Segoe UI", "Noto Sans", system-ui, sans-serif; font-size: 9pt; line-height: 1.42; color: var(--ink); background: #fff; }
+  code { font-family: "Cascadia Mono", Consolas, "SF Mono", monospace; font-size: 0.86em; background: #f1f3f5; border: 1px solid var(--line); border-radius: 4px; padding: 0.5px 4px; white-space: nowrap; }
+  pre.cmd { font-family: "Cascadia Mono", Consolas, monospace; font-size: 8.4pt; background: #1e2733; color: #e8edf2; border-radius: 6px; padding: 9px 12px; margin: 6px 0 2px; white-space: pre-wrap; word-break: break-all; }
+  b, strong { font-weight: 700; }
+  .en { color: var(--muted); }
+  a { color: var(--accent); text-decoration: none; font-weight: 600; }
+
+  /* ---------- copertina ---------- */
+  .cover { page: cover; height: 297mm; display: flex; flex-direction: column; break-after: page; }
+  .cover-top { background: var(--navy); color: #fff; height: 69%; padding: 40mm 22mm 0; }
+  .eyebrow { color: var(--salmon); font-weight: 700; letter-spacing: 0.32em; font-size: 9.5pt; }
+  .cover h1 { font-size: 46pt; line-height: 1.1; margin: 8mm 0 6mm; font-weight: 700; letter-spacing: -0.01em; }
+  .cover h1 .x { color: var(--salmon); }
+  .cover .lead { font-size: 13.5pt; line-height: 1.55; color: #d8dee6; max-width: 150mm; margin: 0; }
+  .cover .lead b { color: #fff; }
+  .chips { margin-top: 10mm; display: flex; flex-wrap: wrap; gap: 3mm; }
+  .chips span { border: 1px solid #6d7d90; border-radius: 99px; padding: 1.5mm 4mm; font-size: 9pt; color: #dfe5ec; }
+  .cover-bottom { flex: 1; padding: 16mm 22mm 10mm; display: flex; flex-direction: column; }
+  .label { font-size: 8.5pt; font-weight: 700; letter-spacing: 0.28em; color: var(--muted); text-transform: uppercase; }
+  .brief { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8mm; margin-top: 9mm; }
+  .brief .num { width: 10mm; height: 10mm; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 11pt; }
+  .brief h4 { margin: 4mm 0 1mm; font-size: 11pt; }
+  .brief p { margin: 0; color: var(--muted); font-size: 9pt; line-height: 1.45; }
+  .cover-foot { margin-top: auto; border-top: 1px solid var(--line); padding-top: 3mm; display: flex; justify-content: space-between; color: var(--muted); font-size: 8pt; }
+
+  /* ---------- capitoli ---------- */
+  .chapter { break-before: page; }
+  .chapter-head { display: flex; align-items: center; gap: 4mm; margin: 0 0 3mm; }
+  .chapter-head .n { width: 11mm; height: 11mm; border-radius: 2.5mm; background: var(--accent); color: #fff; font-weight: 700; font-size: 13pt; display: flex; align-items: center; justify-content: center; flex: none; }
+  .chapter-head h2 { margin: 0; font-size: 19pt; font-weight: 700; color: var(--navy); letter-spacing: -0.01em; }
+  .intro { color: var(--muted); font-size: 9.8pt; margin: 0 0 3.5mm; }
+  h3 { font-size: 11.5pt; color: var(--navy); margin: 4.2mm 0 2mm; break-after: avoid; }
+  p { margin: 0 0 2.5mm; }
+
+  .steps { list-style: none; padding: 0; margin: 0 0 3mm; counter-reset: s; }
+  .steps > li { position: relative; padding-left: 9mm; margin-bottom: 2mm; counter-increment: s; break-inside: avoid; }
+  .steps > li::before { content: counter(s); position: absolute; left: 0; top: 0.2mm; width: 6mm; height: 6mm; border-radius: 50%; background: var(--navy); color: #fff; font-size: 8pt; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .steps > li > b:first-child { display: block; }
+  .steps > li > span.d { color: var(--muted); }
+
+  .box { border-radius: 2.5mm; padding: 2.8mm 4mm; margin: 3mm 0; border-left: 3px solid var(--grey-line); background: var(--grey-bg); break-inside: avoid; }
+  .box .t { font-weight: 700; font-size: 8.5pt; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.5mm; }
+  .box p:last-child, .box ul:last-child { margin-bottom: 0; }
+  .box ul { margin: 0; padding-left: 5mm; }
+  .box li { margin-bottom: 1mm; }
+  .box.tip { background: var(--green-bg); border-color: var(--green); } .box.tip .t { color: var(--green); }
+  .box.warn { background: var(--amber-bg); border-color: var(--amber); } .box.warn .t { color: var(--amber); }
+
+  table { width: 100%; border-collapse: collapse; margin: 2.5mm 0; font-size: 8.7pt; }
+  th { background: var(--navy); color: #fff; text-align: left; font-size: 8.3pt; padding: 1.9mm 3mm; }
+  td { border-bottom: 1px solid var(--line); padding: 1.7mm 3mm; vertical-align: top; }
+  td:first-child { font-weight: 600; width: 36%; }
+  table.wide td:first-child { width: 28%; }
+  tr { break-inside: avoid; }
+
+  .prompt { border: 1px solid var(--line); border-radius: 2.5mm; margin: 1.8mm 0; break-inside: avoid; overflow: hidden; }
+  .prompt .q { padding: 1.9mm 3.2mm; font-size: 9.3pt; }
+  .prompt .q::before { content: "PROMPT"; background: var(--accent); color: #fff; font-size: 7pt; font-weight: 700; letter-spacing: 0.08em; padding: 0.6mm 2mm; border-radius: 1mm; margin-right: 2.5mm; position: relative; top: -1px; }
+  .prompt .note { background: var(--grey-bg); border-top: 1px solid var(--line); padding: 1.3mm 3.2mm; color: var(--muted); font-size: 8pt; }
+  .steps .prompt { margin-top: 1.5mm; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; margin: 2.5mm 0; }
+  .check { border: 1px solid var(--line); border-radius: 2.5mm; padding: 2.4mm 3.2mm 2.4mm 10mm; position: relative; break-inside: avoid; }
+  .check::before { content: ""; position: absolute; left: 3.5mm; top: 3.2mm; width: 3.6mm; height: 3.6mm; border: 1.5px solid var(--accent); border-radius: 1mm; }
+  .check b { display: block; }
+  .check span { color: var(--muted); font-size: 8.5pt; }
+  .file { border: 1px solid var(--line); border-radius: 2.5mm; padding: 3mm; display: flex; gap: 3mm; break-inside: avoid; }
+  .file .ic { width: 11mm; height: 11mm; border-radius: 1.8mm; background: var(--navy); color: #fff; font-size: 6.5pt; font-weight: 700; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 1.5mm; flex: none; }
+  .file .ic.zip { background: var(--accent); }
+  .file .nm { font-family: "Cascadia Mono", Consolas, monospace; font-weight: 700; font-size: 8.8pt; }
+  .file span { color: var(--muted); font-size: 8.6pt; }
+  .can { background: var(--green-bg); border-left: 3px solid var(--green); border-radius: 2.5mm; padding: 2.8mm 4mm; }
+  .cant { background: var(--amber-bg); border-left: 3px solid var(--amber); border-radius: 2.5mm; padding: 2.8mm 4mm; }
+  .can .t, .cant .t { font-weight: 700; font-size: 8.5pt; letter-spacing: 0.06em; margin-bottom: 1.5mm; }
+  .can .t { color: var(--green); } .cant .t { color: var(--amber); }
+  .can ul, .cant ul { margin: 0; padding-left: 4.5mm; font-size: 8.6pt; } .can li, .cant li { margin-bottom: 0.4mm; }
+
+  .flow { display: grid; grid-template-columns: 1fr 4mm 1fr 4mm 1fr 4mm 1fr 4mm 1fr; align-items: stretch; margin: 3mm 0 2mm; }
+  .flow .st { border: 1px solid var(--line); border-radius: 2.5mm; padding: 3mm 2mm; text-align: center; }
+  .flow .st.hl { background: var(--accent-soft); border-color: var(--accent-line); }
+  .flow .st .k { color: var(--accent); font-size: 7pt; font-weight: 700; letter-spacing: 0.18em; }
+  .flow .st b { display: block; font-size: 9.5pt; margin: 1mm 0; }
+  .flow .st span { color: var(--muted); font-size: 7.8pt; line-height: 1.35; display: block; }
+  .flow .ar { display: flex; align-items: center; justify-content: center; color: #9aa5b1; }
+
+  .rules { margin: 2mm 0; }
+  .rule { display: flex; gap: 3.5mm; padding: 1.9mm 0; border-bottom: 1px solid var(--line); break-inside: avoid; }
+  .rule .i { width: 6mm; height: 6mm; border-radius: 50%; color: #fff; font-weight: 700; font-size: 8.5pt; display: flex; align-items: center; justify-content: center; flex: none; margin-top: 0.3mm; }
+  .i.r { background: var(--red); } .i.a { background: #c98a1b; } .i.n { background: var(--navy); } .i.g { background: var(--green); }
+  .rule > div > b { display: block; } .rule > div > span { color: var(--muted); font-size: 8.6pt; }
+</style>
+</head>
+
+<body>
+
+<!-- ======================= COPERTINA ======================= -->
+<section class="cover">
+  <div class="cover-top">
+    <div class="eyebrow">GUIDA PRATICA · WINDOWS · V0.4.0</div>
+    <h1>Claude <span class="x">×</span> CapCut</h1>
+    <p class="lead">Come installare sul PC Claude Desktop e CapCut con l'account aziendale, collegare l'estensione CapCut e la skill <b>capcut-reels</b>, e far montare le tue bozze a Claude: premontaggio, sottotitoli, transizioni e grafiche.</p>
+    <div class="chips"><span>Windows 10 / 11</span><span>CapCut aziendale</span><span>Trascrizione offline</span><span>Backup automatici</span></div>
+  </div>
+  <div class="cover-bottom">
+    <div class="label">In breve</div>
+    <div class="brief">
+      <div><div class="num">1</div><h4>Installa le app</h4><p>Claude Desktop e CapCut, con il tuo account aziendale.</p></div>
+      <div><div class="num">2</div><h4>Collega CapCut</h4><p>Doppio clic sul file <code>.mcpb</code>, poi carica la skill.</p></div>
+      <div><div class="num">3</div><h4>Setup una volta</h4><p>Chiedi a Claude di eseguire <code>capcut_setup</code>.</p></div>
+      <div><div class="num">4</div><h4>Chiedi e salva</h4><p>Descrivi il montaggio, chiudi CapCut e fai salvare.</p></div>
+    </div>
+    <div class="cover-foot"><span>Estensione capcut-mcp · Skill capcut-reels</span><span>Novembre 2026</span></div>
+  </div>
+</section>
+
+<!-- ======================= 0 ======================= -->
+<section id="c0">
+  <div class="chapter-head"><div class="n">0</div><h2>Cosa ti serve</h2></div>
+  <p class="intro">Prima di iniziare controlla di avere tutto. L'installazione completa richiede circa 20–30 minuti, la maggior parte per lo scaricamento automatico del modello di trascrizione.</p>
+  <div class="grid2">
+    <div class="check"><b>Un PC Windows 10 o 11</b><span>L'installazione automatica di ffmpeg usa winget, lo strumento di installazione di Windows.</span></div>
+    <div class="check"><b>L'invito al CapCut aziendale</b><span>Arriva da chi gestisce il piano (email o link). Se non l'hai ricevuto, chiedilo prima di iniziare. Installazione e accesso: capitolo 2.</span></div>
+    <div class="check"><b>Un account Claude</b><span>Si crea gratis durante l'accesso. Per lavorare con continuità è consigliato un piano a pagamento (Pro o superiore).</span></div>
+    <div class="check"><b>Circa 1 GB libero e internet</b><span>Per ffmpeg e il modello Whisper (~600 MB), scaricati una sola volta. PC gestito dall'IT con installazioni bloccate? Vedi il capitolo 5.</span></div>
+  </div>
+
+  <h3>I due file del pacchetto</h3>
+  <p>Ti sono stati consegnati due file. <b>Non rinominarli e non estrarre lo zip.</b></p>
+  <div class="grid2">
+    <div class="file"><div class="ic">MCPB</div><div><div class="nm">capcut-mcp.mcpb</div><span>L'<b>estensione</b> (server MCP): dà a Claude gli strumenti per leggere e modificare le bozze di CapCut sul tuo PC. ~4 MB.</span></div></div>
+    <div class="file"><div class="ic zip">ZIP</div><div><div class="nm">capcut-reels-skill.zip</div><span>La <b>skill</b>: le istruzioni che insegnano a Claude il metodo di lavoro (premontaggio, prese, sottotitoli, grafiche).</span></div></div>
+  </div>
+  <div class="box">
+    <div class="t">Estensione e skill: che differenza c'è?</div>
+    <p><b>L'estensione</b> sono le “mani”: senza di lei Claude non può toccare i file di CapCut. <b>La skill</b> è il “mestiere”: senza di lei Claude ha gli strumenti ma lavora in modo meno preciso (per esempio potrebbe scegliere lui la presa migliore invece di tenerle tutte). Installa sempre entrambe.</p>
+  </div>
+
+  <h3>Cosa fa (e cosa non fa)</h3>
+  <div class="grid2">
+    <div class="can"><div class="t">SA FARE</div><ul>
+      <li>Premontaggio dei girati parlati: toglie silenzi e frasi interrotte, tiene tutte le prese complete</li>
+      <li>Trascrizione offline sul PC (Whisper)</li>
+      <li>Aggiungere, spostare, tagliare, dividere clip, immagini, audio e testi</li>
+      <li>Sottotitoli con lo stile di un testo che hai già (anche quello aziendale)</li>
+      <li>Copiare transizioni, animazioni ed effetti già usati, anche quelli Pro</li>
+      <li>Inserire grafiche e b-roll generati altrove (es. Higgsfield)</li>
+      <li>Backup automatico a ogni salvataggio</li></ul></div>
+    <div class="cant"><div class="t">NON FA</div><ul>
+      <li>Non esporta il video finale: l'esportazione si fa in CapCut</li>
+      <li>Non inventa effetti o transizioni di CapCut: può solo copiare quelli già usati in una bozza</li>
+      <li>Non lavora mentre CapCut è aperto</li>
+      <li>Non vede i progetti che sono solo nello spazio cloud del team: prima vanno scaricati sul PC</li>
+      <li>Non funziona dal sito web claude.ai né dal telefono: serve l'app desktop sul PC dove ci sono le bozze</li></ul></div>
+  </div>
+</section>
+
+<!-- ======================= 1 ======================= -->
+<section class="chapter" id="c1">
+  <div class="chapter-head"><div class="n">1</div><h2>Installare Claude Desktop e collegare l'account</h2></div>
+  <p class="intro">Claude Desktop è l'app di Claude per il computer. È l'unica versione che può usare le estensioni installate sul PC, quindi è indispensabile.</p>
+
+  <h3>1.1 Scaricare l'app</h3>
+  <ol class="steps">
+    <li><b>Apri il browser e vai su <a href="https://claude.ai/download">claude.ai/download</a></b><span class="d">È la pagina ufficiale. Scarica solo da qui, non da siti di terze parti.</span></li>
+    <li><b>Scegli la versione per Windows</b><span class="d">Viene scaricato un file di installazione, di solito nella cartella <i>Download</i>.</span></li>
+  </ol>
+
+  <h3>1.2 Installare</h3>
+  <ol class="steps">
+    <li><b>Fai doppio clic sul file scaricato</b><span class="d">Se Windows chiede «Vuoi consentire a questa app di apportare modifiche?», rispondi <b>Sì</b>.</span></li>
+    <li><b>Attendi la fine dell'installazione</b><span class="d">Claude si apre da solo e crea un collegamento nel menu Start.</span></li>
+  </ol>
+
+  <h3>1.3 Accedere con il tuo account</h3>
+  <ol class="steps">
+    <li><b>Alla prima apertura scegli come accedere</b><span class="d">Puoi usare <b>Continua con Google</b> oppure inserire il tuo <b>indirizzo email</b>.</span></li>
+    <li><b>Se hai scelto l'email, controlla la posta</b><span class="d">Ti arriva un codice o un link di accesso: inseriscilo o cliccalo. Se l'account non esiste ancora, viene creato in questo passaggio.</span></li>
+    <li><b>Completa i dati richiesti</b><span class="d">Nome, conferma dell'età e accettazione dei termini di servizio.</span></li>
+    <li><b>Scegli il piano</b><span class="d">Puoi partire con il piano gratuito e passare a un piano a pagamento in seguito da <b>Impostazioni</b> <span class="en">(Settings)</span> → <b>Abbonamento</b> <span class="en">(Billing)</span>.</span></li>
+  </ol>
+  <div class="box tip">
+    <div class="t">Quale piano?</div>
+    <p>Il montaggio con Claude usa molti messaggi: ogni bozza letta, ogni trascrizione e soprattutto ogni fotogramma mostrato a Claude consuma il limite di utilizzo. Con il piano gratuito il limite si raggiunge in fretta. Per lavorare su più video al giorno è consigliato almeno <b>Pro</b>; per uso intensivo <b>Max</b>. Verifica prezzi e limiti aggiornati sulla pagina dei piani di Claude.</p>
+  </div>
+  <div class="box">
+    <div class="t">Usare lo stesso account su più computer</div>
+    <p>Puoi accedere con lo stesso account su più computer, Windows o Mac. La <b>skill</b> si carica una volta sola e la ritrovi ovunque; l'<b>estensione</b> invece va installata su <b>ogni computer</b> dove ci sono le bozze di CapCut, perché lavora sui file locali.</p>
+  </div>
+</section>
+
+<!-- ======================= 2 ======================= -->
+<section class="chapter" id="c2">
+  <div class="chapter-head"><div class="n">2</div><h2>Installare CapCut desktop (account aziendale)</h2></div>
+  <p class="intro">Con il piano aziendale hai già un account CapCut con tutte le funzioni Pro. Ti serve l'app <b>CapCut desktop</b> sul PC, collegata a quell'account: Claude lavora sulle bozze che l'app salva sul computer. Se CapCut è già installato e sei già nel team, controlla solo i punti 2.3 e 2.4.</p>
+
+  <h3>2.1 Scaricare e installare</h3>
+  <ol class="steps">
+    <li><b>Scarica CapCut per Windows</b><span class="d">Dal sito ufficiale <a href="https://www.capcut.com">capcut.com</a> (versione desktop, <i>Scarica per Windows</i>). Se il PC è gestito dall'IT aziendale, CapCut potrebbe essere già installato o andrà chiesto a loro.</span></li>
+    <li><b>Fai doppio clic sul file scaricato</b><span class="d">Lo trovi di solito nella cartella <i>Download</i>. Se Windows chiede «Vuoi consentire a questa app di apportare modifiche?», rispondi <b>Sì</b>, poi segui i passaggi dell'installazione.</span></li>
+    <li><b>Apri CapCut</b><span class="d">Dal menu Start o dal collegamento sul desktop.</span></li>
+  </ol>
+
+  <h3>2.2 Entrare nel team aziendale</h3>
+  <ol class="steps">
+    <li><b>Accetta l'invito al team</b><span class="d">Chi gestisce il piano aziendale ti manda un invito, per email o con un link. Aprilo e accetta, accedendo con il tuo account CapCut (di solito quello con l'email aziendale).</span></li>
+    <li><b>In CapCut desktop clicca Accedi</b><span class="d">Usa <b>lo stesso account</b> con cui hai accettato l'invito. Con un account diverso vedresti CapCut senza il piano aziendale.</span></li>
+    <li><b>Controlla di essere nel team</b><span class="d">Dal tuo profilo o dall'elenco degli spazi deve comparire lo spazio del team aziendale, e le funzioni Pro non devono chiedere un abbonamento. I nomi delle voci possono cambiare con la versione di CapCut.</span></li>
+  </ol>
+
+  <h3>2.3 Bozze sul PC e spazio del team</h3>
+  <div class="box warn">
+    <div class="t">Claude vede solo le bozze salvate sul PC</div>
+    <ul>
+      <li>Claude lavora sulle <b>bozze locali</b>, cioè quelle salvate sul tuo PC. Un progetto che è solo nello <b>spazio cloud del team</b> va prima scaricato o aperto sul PC.</li>
+      <li>Quando hai finito e controllato il lavoro di Claude, se il progetto serve ai colleghi <b>ricaricalo nello spazio del team</b> da CapCut.</li>
+      <li>Una persona alla volta: se due colleghi modificano la stessa bozza in parallelo, le modifiche rischiano di sovrascriversi.</li>
+    </ul>
+  </div>
+
+  <h3>2.4 Preparare CapCut per Claude</h3>
+  <ol class="steps">
+    <li><b>Crea almeno una bozza e aprila una volta</b><span class="d">Claude impara il formato delle bozze da quelle che esistono già: gli serve almeno un progetto con un video, un audio e un testo, in qualsiasi bozza.</span></li>
+    <li><b>Consigliato: una bozza “Template sottotitoli” con lo stile aziendale</b><span class="d">Mettici un testo con il font, i colori, il bordo e l'animazione dell'azienda. Claude userà quello stile per tutti i sottotitoli (punto 3.2).</span></li>
+    <li><b>Chiudi CapCut del tutto</b><span class="d">Chiudi la finestra e, se c'è, anche l'icona di CapCut vicino all'orologio. Prima di ogni salvataggio di Claude, CapCut deve essere chiuso.</span></li>
+  </ol>
+</section>
+
+<!-- ======================= 3 ======================= -->
+<section class="chapter" id="c3">
+  <div class="chapter-head"><div class="n">3</div><h2>Collegare l'estensione CapCut (MCP)</h2></div>
+  <p class="intro">L'estensione “CapCut – montaggio bozze” è il server MCP che collega Claude alle bozze di CapCut. Si installa con un doppio clic, senza terminale.</p>
+
+  <h3>3.1 Installare il file .mcpb</h3>
+  <ol class="steps">
+    <li><b>Con Claude Desktop aperto, fai doppio clic su <code>capcut-mcp.mcpb</code></b><span class="d">Claude Desktop si porta in primo piano e mostra la scheda dell'estensione <b>“CapCut – montaggio bozze”</b> con descrizione ed elenco degli strumenti.</span></li>
+    <li><b>Clicca su Installa <i>(Install)</i></b><span class="d">Se compare un avviso sull'origine dell'estensione, conferma: è normale per le estensioni che non vengono dalla directory ufficiale.</span></li>
+    <li><b>Compila le impostazioni (puoi lasciarle vuote) e verifica che sia Attiva <i>(Enabled)</i></b><span class="d">Vedi la tabella qui sotto. Nella maggior parte dei casi basta confermare senza scrivere nulla.</span></li>
+  </ol>
+  <div class="box">
+    <div class="t">Se il doppio clic non funziona</div>
+    <p>Apri <b>Impostazioni</b> <span class="en">(Settings)</span> → <b>Estensioni</b> <span class="en">(Extensions)</span> → <b>Impostazioni avanzate</b> <span class="en">(Advanced settings)</span> → <b>Installa estensione</b> <span class="en">(Install Extension)</span> e scegli il file <code>capcut-mcp.mcpb</code>.</p>
+  </div>
+
+  <h3>3.2 Le impostazioni dell'estensione</h3>
+  <table class="wide">
+    <tr><th>Campo</th><th>Cosa mettere</th></tr>
+    <tr><td>Cartella delle bozze CapCut</td><td><b>Lascia vuoto.</b> Viene trovata da sola. Compilala solo se in CapCut hai spostato le bozze in un'altra cartella o su un altro disco (in CapCut la trovi nelle impostazioni, alla voce sulla posizione delle bozze).</td></tr>
+    <tr><td>Cartella per i file scaricati</td><td>Dove salvare video e immagini scaricati (es. da Higgsfield). Se vuoto: <code>Video\CapCut MCP</code>.</td></tr>
+    <tr><td>Bozza modello per i testi</td><td>Il <b>nome della bozza</b> con il testo nello stile aziendale (font, colori, bordo, animazione), per esempio <b>Template sottotitoli</b> (punto 2.4). Se vuoto, Claude usa il primo testo che trova.</td></tr>
+    <tr><td>Modello di trascrizione</td><td><code>large-v3-turbo-q5_0</code> (consigliato). Su PC lenti: <code>medium-q5_0</code> o <code>small</code> (più veloci, meno precisi).</td></tr>
+    <tr><td>Lingua del parlato</td><td><code>it</code> per l'italiano. Altri esempi: <code>en</code>, <code>es</code>, <code>fr</code>.</td></tr>
+  </table>
+  <p class="en" style="font-size:8.6pt">Per cambiarle in seguito: <b>Impostazioni → Estensioni → CapCut – montaggio bozze</b>, poi apri una <b>nuova chat</b>.</p>
+
+  <h3>3.3 Verificare che sia collegata</h3>
+  <ol class="steps">
+    <li><b>Apri una nuova chat e controlla il menu degli strumenti</b><span class="d">Sotto la casella di testo c'è il pulsante degli strumenti/connettori: l'estensione <b>CapCut – montaggio bozze</b> deve comparire nell'elenco ed essere attiva.</span></li>
+    <li><b>Fai una prova</b><span class="d">Scrivi: <i>«Elenca le mie bozze di CapCut.»</i> Se Claude risponde con l'elenco dei tuoi progetti, l'estensione funziona.</span></li>
+  </ol>
+</section>
+
+<!-- ======================= 4 ======================= -->
+<section class="chapter" id="c4">
+  <div class="chapter-head"><div class="n">4</div><h2>Importare la skill capcut-reels</h2></div>
+  <p class="intro">La skill è un pacchetto di istruzioni: insegna a Claude come fare un premontaggio, come riconoscere le frasi dettate da dietro la camera, come mettere sottotitoli e grafiche. Si attiva da sola quando parli di CapCut, bozze, premontaggio o reel.</p>
+
+  <h3>4.1 Caricare lo zip</h3>
+  <ol class="steps">
+    <li><b>Apri Personalizza <span class="en">(Customize)</span> → Skills</b><span class="d">Lo trovi nel menu laterale di Claude Desktop (o tramite le Impostazioni).</span></li>
+    <li><b>Clicca su Carica skill <i>(Upload skill)</i></b><span class="d">Di solito è un pulsante “+” o “Carica”.</span></li>
+    <li><b>Scegli il file <code>capcut-reels-skill.zip</code></b><span class="d"><b>Non estrarlo</b>: va caricato lo zip così com'è.</span></li>
+    <li><b>Attiva l'interruttore accanto a <code>capcut-reels</code></b><span class="d">La skill compare nell'elenco con la sua descrizione.</span></li>
+  </ol>
+  <div class="box warn">
+    <div class="t">Non vedi la sezione Skills?</div>
+    <p>Le skill richiedono che sia attiva l'esecuzione del codice. Vai in <b>Impostazioni</b> <span class="en">(Settings)</span> → <b>Funzionalità</b> <span class="en">(Capabilities)</span> e attiva <b>Esecuzione di codice e creazione di file</b> <span class="en"><i>(Code execution and file creation)</i></span>, poi riprova. Se ancora non compare, aggiorna Claude Desktop all'ultima versione.</p>
+  </div>
+
+  <h3>4.2 Verificare che la skill venga usata</h3>
+  <p>Non serve richiamarla a mano: quando scrivi per esempio <i>«fai il premontaggio della bozza…»</i>, Claude la carica da solo (nella chat vedi un passaggio tipo “lettura skill capcut-reels”). Se vuoi essere sicuro, aggiungi al prompt: <i>«usa la skill capcut-reels»</i>.</p>
+
+  <h3>4.3 Facoltativo: collegare Higgsfield</h3>
+  <p>Se vuoi che Claude generi grafiche animate, motion o b-roll e li metta direttamente nella bozza, collega anche il connettore di Higgsfield da <b>Impostazioni → Connettori</b> <span class="en">(Connectors)</span> e accedi con il tuo account Higgsfield. Senza connettore puoi comunque incollare in chat il link di un file generato: Claude lo scarica e lo inserisce.</p>
+
+  <div class="box">
+    <div class="t">Riepilogo di cosa deve risultare attivo</div>
+    <table>
+      <tr><th>Elemento</th><th>Dove controllarlo</th><th>Stato</th></tr>
+      <tr><td>CapCut con l'account aziendale</td><td>CapCut → profilo / spazi</td><td>Nel team</td></tr>
+      <tr><td>Estensione CapCut – montaggio bozze</td><td>Impostazioni → Estensioni</td><td>Attiva</td></tr>
+      <tr><td>Skill capcut-reels</td><td>Personalizza → Skills</td><td>Attiva</td></tr>
+      <tr><td>Esecuzione di codice</td><td>Impostazioni → Funzionalità</td><td>Attiva</td></tr>
+      <tr><td>Higgsfield (facoltativo)</td><td>Impostazioni → Connettori</td><td>Collegato</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ======================= 5 ======================= -->
+<section class="chapter" id="c5">
+  <div class="chapter-head"><div class="n">5</div><h2>Primo avvio: il setup</h2></div>
+  <p class="intro">La trascrizione funziona offline sul tuo PC, quindi servono due componenti: <b>ffmpeg</b> (il programma che legge video e audio) e il <b>modello Whisper</b> (~600 MB). Claude li installa per te, una volta sola per ogni PC.</p>
+
+  <h3>5.1 Il setup in Claude</h3>
+  <ol class="steps">
+    <li><b>Apri una nuova chat e scrivi:</b>
+      <div class="prompt"><div class="q">Esegui capcut_setup con install true.</div></div></li>
+    <li><b>Autorizza lo strumento</b><span class="d">Claude Desktop ti chiede il permesso di usare <code>capcut_setup</code>: clicca <b>Consenti</b> <i>(Allow)</i>.</span></li>
+    <li><b>Attendi</b><span class="d">Il setup gira in background: installa ffmpeg con winget (lo strumento di installazione di Windows) e scarica il modello in <code>%LOCALAPPDATA%\capcut-mcp\models</code>. Richiede da qualche minuto a un quarto d'ora, a seconda della connessione.</span></li>
+    <li><b>Chiedi a che punto è</b>
+      <div class="prompt"><div class="q">A che punto è il setup?</div></div></li>
+    <li><b>Verifica che sia tutto pronto</b>
+      <div class="prompt"><div class="q">Esegui capcut_setup senza installare e dimmi se è tutto pronto.</div><div class="note">Deve risultare <b>pronto</b>: ffmpeg, filtro whisper, modello e cartella delle bozze trovati.</div></div></li>
+  </ol>
+  <div class="box warn">
+    <div class="t">Se qualcosa va storto</div>
+    <ul>
+      <li><b>“ffmpeg installato ma non trovato”</b>: chiudi del tutto Claude Desktop (anche dall'icona vicino all'orologio), riaprilo e ripeti il controllo.</li>
+      <li><b>“winget non disponibile”</b>: installa <b>Programma di installazione app</b> <i>(App Installer)</i> dal Microsoft Store, poi ripeti il setup.</li>
+      <li><b>Finestra di Windows che chiede l'autorizzazione</b>: accetta, è l'installazione di ffmpeg.</li>
+    </ul>
+  </div>
+  <div class="box">
+    <div class="t">PC aziendale con installazioni bloccate?</div>
+    <p>Se l'IT blocca winget o il Microsoft Store, chiedi a loro di installare <b>ffmpeg completo</b> (il pacchetto <code>Gyan.FFmpeg</code>, che contiene il filtro whisper). Poi ripeti il setup: Claude scaricherà solo il modello di trascrizione.</p>
+  </div>
+
+  <h3>5.2 I permessi degli strumenti</h3>
+  <p>Come per <code>capcut_setup</code>, ogni volta che Claude usa uno strumento nuovo Claude Desktop chiede il permesso. Puoi scegliere <b>Consenti una volta</b> o <b>Consenti sempre</b>.</p>
+  <ul>
+    <li><b>Consenti sempre</b> va bene per gli strumenti di sola lettura (elenco bozze, lettura timeline, fotogrammi, trascrizione) e per quelli di modifica in memoria.</li>
+    <li>Per <code>capcut_save</code>, <code>capcut_restore_backup</code>, <code>capcut_ffmpeg</code> e <code>capcut_raw_patch</code> puoi preferire <b>Consenti una volta</b>: così vedi ogni volta quando Claude scrive sul disco.</li>
+  </ul>
+</section>
+
+<!-- ======================= 6 ======================= -->
+<section class="chapter" id="c6">
+  <div class="chapter-head"><div class="n">6</div><h2>Come si usa</h2></div>
+  <p class="intro">Si lavora parlando con Claude in chat, in italiano normale. Claude legge la bozza, fa le modifiche in memoria, ti mostra un riepilogo e salva solo quando CapCut è chiuso.</p>
+
+  <h3>6.1 Il flusso di lavoro</h3>
+  <div class="flow">
+    <div class="st"><div class="k">PASSO 1</div><b>Prepara in CapCut</b><span>Crea la bozza (o scarica quella del team) e importa il girato</span></div><div class="ar">→</div>
+    <div class="st"><div class="k">PASSO 2</div><b>Chiedi a Claude</b><span>Indica la bozza e cosa vuoi ottenere</span></div><div class="ar">→</div>
+    <div class="st"><div class="k">PASSO 3</div><b>Controlla il riepilogo</b><span>Le modifiche sono ancora solo in memoria</span></div><div class="ar">→</div>
+    <div class="st hl"><div class="k">PASSO 4</div><b>Chiudi CapCut e salva</b><span>Backup automatico prima di scrivere</span></div><div class="ar">→</div>
+    <div class="st"><div class="k">PASSO 5</div><b>Riapri ed esporta</b><span>Controlla, esporta e, se serve, ricarica nello spazio del team</span></div>
+  </div>
+
+  <h3>6.2 Concetti da sapere</h3>
+  <table>
+    <tr><td>Bozza</td><td>Un progetto di CapCut salvato sul PC. Claude lo riconosce dal <b>nome</b> che vedi nella schermata iniziale di CapCut: scrivilo esattamente uguale, tra virgolette.</td></tr>
+    <tr><td>Spazio del team</td><td>Lo spazio cloud aziendale di CapCut. Claude non ci lavora direttamente: scarica prima il progetto sul PC e ricaricalo quando hai finito.</td></tr>
+    <tr><td>Modifiche in memoria</td><td>Tutto quello che Claude fa (aggiungere, tagliare, spostare…) resta <b>in sospeso</b> finché non chiedi di salvare. Puoi chiedere di annullare in qualsiasi momento.</td></tr>
+    <tr><td>Salvataggio</td><td>Scrive la bozza su disco. Funziona <b>solo con CapCut chiuso</b>. Prima di scrivere fa sempre un <b>backup</b>.</td></tr>
+    <tr><td>Backup</td><td>Una copia della bozza prima di ogni salvataggio (vengono tenute le ultime 25). Si ripristina con una frase: <i>«ripristina l'ultimo backup della bozza…»</i>.</td></tr>
+    <tr><td>Traccia principale</td><td>La prima traccia video, quella del girato. Il premontaggio lavora solo su questa.</td></tr>
+    <tr><td>Presa</td><td>Una ripetizione completa di una frase. Di default <b>vengono tenute tutte</b>: scegli tu quale usare.</td></tr>
+    <tr><td>Tempi</td><td>In secondi (es. “al secondo 12”) o minuti:secondi (es. “a 1:05”).</td></tr>
+  </table>
+
+  <h3>6.3 Cosa succede durante un premontaggio</h3>
+  <ol class="steps">
+    <li><b>Claude legge la bozza</b><span class="d">e trova i file del girato sulla traccia principale.</span></li>
+    <li><b>Trascrive ogni file</b><span class="d">offline: ottiene i “blocchi” di parlato con inizio, fine, volume e testo. Servono circa 8–15 secondi per frase: su un girato lungo può volerci qualche minuto. Se Claude dice che manca molto, fai altro e poi scrivigli <i>«continua»</i> o <i>«a che punto sei?»</i>.</span></li>
+    <li><b>Decide cosa tenere</b><span class="d">Tiene tutte le prese complete; toglie silenzi, frasi lasciate a metà, rumori, commenti fuori copione e le frasi dettate da dietro la camera (che verifica guardando i fotogrammi).</span></li>
+    <li><b>Ricostruisce la traccia principale</b><span class="d">Una presa dopo l'altra, in ordine cronologico, ognuna come clip separato.</span></li>
+    <li><b>Controlla, ti chiede di chiudere CapCut e salva</b></li>
+    <li><b>Ti fa un riepilogo</b><span class="d">Durata prima/dopo, tabella con tempo, frase e numero di prese, prese dubbie e frasi dettate tolte.</span></li>
+  </ol>
+</section>
+
+<!-- ======================= 7 ======================= -->
+<section class="chapter" id="c7">
+  <div class="chapter-head"><div class="n">7</div><h2>I prompt da dare</h2></div>
+  <p class="intro">Frasi pronte da copiare. Sostituisci i nomi tra virgolette con quelli delle tue bozze e dei tuoi file.</p>
+  <div class="box tip">
+    <div class="t">Come scrivere un buon prompt</div>
+    <ul>
+      <li><b>Nomina sempre la bozza</b>, tra virgolette, esattamente come in CapCut.</li>
+      <li><b>Dì cosa tenere e cosa togliere</b>, non solo “sistemalo”.</li>
+      <li><b>Chiedi prima un piano</b> per le modifiche grandi: <i>«prima dimmi cosa intendi fare, non salvare»</i>.</li>
+      <li><b>Una cosa alla volta</b>: premontaggio, poi sottotitoli, poi grafiche. Più facile da controllare.</li>
+      <li><b>Per le prove usa una copia</b> della bozza.</li>
+      <li><b>Una chat per progetto</b>: le chat lunghe diventano lente e consumano il limite più in fretta; i fotogrammi mostrati a Claude sono la parte che consuma di più.</li>
+    </ul>
+  </div>
+
+  <h3>Primi passi</h3>
+  <div class="prompt"><div class="q">Elenca le mie bozze di CapCut.</div><div class="note">Mostra le bozze sul PC dalla più recente, con durata e se sono aperte in CapCut.</div></div>
+  <div class="prompt"><div class="q">Leggi la bozza "Reel 12" e dimmi cosa c'è sulla timeline: tracce, clip, testi e durata.</div></div>
+  <div class="prompt"><div class="q">Mostrami il fotogramma della bozza "Reel 12" al secondo 8.</div><div class="note">Claude “guarda” il video. Utile per scegliere dove mettere testi e grafiche senza coprire il viso.</div></div>
+  <div class="prompt"><div class="q">Trova i video nella cartella Download e dimmi durata e formato di ognuno.</div></div>
+
+  <h3>Premontaggio <span style="font-size:7.5pt;color:var(--accent);background:var(--accent-soft);padding:0.5mm 2mm;border-radius:1mm;letter-spacing:.08em;vertical-align:middle">IL PIÙ USATO</span></h3>
+  <div class="prompt"><div class="q">Fai il premontaggio della bozza "Intervista Marco": togli silenzi, rumori e frasi lasciate a metà, ma tieni tutte le prese complete di ogni frase. Prima di salvare fammi un riepilogo.</div></div>
+  <div class="prompt"><div class="q">Nel girato della bozza "Intervista Marco" c'è una persona dietro la camera che detta le frasi e Marco le ripete. Togli le frasi dettate e tieni solo quello che dice Marco.</div><div class="note">Claude riconosce le frasi dettate dal volume più basso e lo conferma guardando i fotogrammi (chi ascolta ha la bocca chiusa).</div></div>
+  <div class="prompt"><div class="q">Duplica la bozza "Intervista Marco" chiamandola "Intervista Marco – PM" e fai il premontaggio sulla copia.</div><div class="note">Lavorare su una copia lascia intatto l'originale. Serve CapCut chiuso.</div></div>
+  <div class="prompt"><div class="q">Adesso tieni solo la presa migliore di ogni frase (la più fluida, senza errori). Mostrami la tabella delle scelte prima di salvare.</div><div class="note">Di default Claude tiene tutte le prese: chiedilo esplicitamente se vuoi che scelga lui.</div></div>
+  <div class="prompt"><div class="q">Dopo il premontaggio riallinea musica e titoli alla nuova durata del video.</div><div class="note">Il premontaggio non sposta le altre tracce: vanno riallineate dopo.</div></div>
+
+  <h3>Sottotitoli e testi</h3>
+  <div class="prompt"><div class="q">Aggiungi i sottotitoli alla bozza "Intervista Marco – PM", una frase alla volta, sincronizzati con il parlato, con lo stile del testo della bozza "Template sottotitoli".</div><div class="note">Così i sottotitoli escono con il font e i colori aziendali.</div></div>
+  <div class="prompt"><div class="q">Nella bozza "Reel 12" aggiungi il titolo "3 errori da evitare" dal secondo 0 al secondo 3, in alto.</div></div>
+  <div class="prompt"><div class="q">Nel sottotitolo al secondo 14 della bozza "Reel 12" correggi "marchetting" in "marketing".</div></div>
+
+  <h3>Transizioni, animazioni, zoom</h3>
+  <div class="prompt"><div class="q">Quali transizioni, animazioni ed effetti ho già usato nelle mie bozze?</div><div class="note">Claude può copiare solo quello che hai già usato almeno una volta, anche gli effetti Pro del piano aziendale. Se manca, applicalo a mano su un clip qualsiasi e poi chiedi di copiarlo.</div></div>
+  <div class="prompt"><div class="q">Applica la transizione che ho usato nella bozza "Reel 10" tra tutti i clip della bozza "Reel 12".</div></div>
+  <div class="prompt"><div class="q">Fai uno zoom punch-in al 115% su un clip sì e uno no della traccia principale della bozza "Reel 12".</div></div>
+
+  <h3>Grafiche, b-roll e musica</h3>
+  <div class="prompt"><div class="q">Genera con Higgsfield un'animazione di 5 secondi di un grafico che sale, formato verticale 9:16, e mettila nella bozza "Reel 12" al secondo 12 sopra il video, senza audio.</div><div class="note">Richiede il connettore Higgsfield. Se l'animazione non ha sfondo trasparente coprirà chi parla: Claude te lo segnala.</div></div>
+  <div class="prompt"><div class="q">Scarica questo video e mettilo nella bozza "Reel 12" dal secondo 20 al 25 come b-roll a tutto schermo: [incolla qui il link]</div></div>
+  <div class="prompt"><div class="q">Aggiungi la musica "sottofondo.mp3" dalla cartella Musica alla bozza "Reel 12", per tutta la durata, volume al 20%.</div></div>
+
+  <h3>Controllo, salvataggio e annullamento</h3>
+  <div class="prompt"><div class="q">Controlla la bozza "Reel 12" e dimmi se ci sono problemi prima di salvare.</div><div class="note">Verifica sovrapposizioni, file mancanti ed errori nella struttura.</div></div>
+  <div class="prompt"><div class="q">Ho chiuso CapCut: salva la bozza "Reel 12".</div></div>
+  <div class="prompt"><div class="q">Annulla tutte le modifiche non salvate della bozza "Reel 12".</div></div>
+  <div class="prompt"><div class="q">Mostrami i backup della bozza "Reel 12" e ripristina quello di prima del premontaggio.</div><div class="note">Anche il ripristino fa prima un backup dello stato attuale: non perdi nulla.</div></div>
+</section>
+
+<!-- ======================= 8 ======================= -->
+<section class="chapter" id="c8">
+  <div class="chapter-head"><div class="n">8</div><h2>Le accortezze</h2></div>
+  <p class="intro">Poche regole che evitano il 90% dei problemi.</p>
+  <div class="rules">
+    <div class="rule"><div class="i r">!</div><div><b>Chiudi CapCut prima di salvare, del tutto</b><span>CapCut salva in automatico a intervalli: se è aperto mentre Claude salva, sovrascrive le modifiche. Chiudilo anche dall'icona vicino all'orologio. Claude rifiuta di salvare se CapCut è aperto: non chiedergli di “forzare” a meno che tu sia sicuro che sia chiuso.</span></div></div>
+    <div class="rule"><div class="i r">!</div><div><b>Progetti del team: uno alla volta, poi ricarica</b><span>Claude modifica la bozza sul tuo PC, non quella nello spazio del team. Chi ci lavora la scarica, la fa montare a Claude, la controlla e la ricarica. Due modifiche in parallelo rischiano di sovrascriversi.</span></div></div>
+    <div class="rule"><div class="i r">!</div><div><b>Non spostare né rinominare i file del girato</b><span>La bozza punta ai file originali. Se li sposti, CapCut li mostra come mancanti. Tieni il girato in una cartella fissa prima di iniziare.</span></div></div>
+    <div class="rule"><div class="i a">!</div><div><b>Dopo ogni salvataggio, riapri e controlla</b><span>Il formato delle bozze di CapCut non è documentato. Dopo modifiche grandi apri la bozza e guardala dall'inizio alla fine prima di esportare.</span></div></div>
+    <div class="rule"><div class="i a">!</div><div><b>La prima volta lavora su una copia</b><span>Chiedi a Claude di duplicare la bozza e lavora sulla copia finché non prendi confidenza. In ogni caso i backup permettono di tornare indietro.</span></div></div>
+    <div class="rule"><div class="i a">!</div><div><b>Dopo il premontaggio le altre tracce sono fuori sincrono</b><span>Musica, titoli ed effetti sonori non vengono spostati: chiedi di riallinearli o sistemali in CapCut.</span></div></div>
+    <div class="rule"><div class="i n">i</div><div><b>Le prese le scegli tu</b><span>Claude tiene tutte le prese complete e segnala quelle dubbie. Se vuoi che scelga lui la migliore, chiediglielo esplicitamente.</span></div></div>
+    <div class="rule"><div class="i n">i</div><div><b>Se qualcuno detta da dietro la camera, dillo</b><span>Claude riconosce da solo la maggior parte delle frasi dettate, ma dirglielo nel prompt rende il risultato più affidabile.</span></div></div>
+    <div class="rule"><div class="i n">i</div><div><b>Effetti e transizioni: si copiano, non si inventano</b><span>Applica una volta a mano l'effetto che vuoi in una bozza qualsiasi; poi Claude può copiarlo ovunque. Con il piano aziendale vale anche per gli effetti Pro.</span></div></div>
+    <div class="rule"><div class="i n">i</div><div><b>Grafiche sopra il video: serve la trasparenza</b><span>Un'animazione con sfondo pieno copre chi parla. Chiedi una versione con sfondo trasparente, oppure con sfondo verde da togliere con il chroma key di CapCut, o usala a tutto schermo.</span></div></div>
+    <div class="rule"><div class="i g">✓</div><div><b>Privacy</b><span>La trascrizione avviene sul tuo PC, offline. Però i testi trascritti, i nomi dei file e i fotogrammi che Claude guarda vengono inviati a Claude per l'elaborazione, come qualsiasi messaggio in chat. Non usarlo per materiale che le regole aziendali non permettono di condividere con un servizio cloud.</span></div></div>
+    <div class="rule"><div class="i g">✓</div><div><b>L'esportazione finale si fa in CapCut</b><span>Claude prepara la bozza; rifinitura, colore ed esportazione restano a te.</span></div></div>
+    <div class="rule"><div class="i g">✓</div><div><b>Dopo un aggiornamento di CapCut, fai una prova</b><span>Un aggiornamento può cambiare il formato delle bozze. Prova prima su una copia; se qualcosa non va, ripristina un backup e segnala il problema.</span></div></div>
+  </div>
+</section>
+
+<!-- ======================= 9 ======================= -->
+<section class="chapter" id="c9">
+  <div class="chapter-head"><div class="n">9</div><h2>Risoluzione dei problemi</h2></div>
+  <p class="intro">Errori comuni e come risolverli. In quasi tutti i casi puoi anche descrivere il problema a Claude: ha gli strumenti per controllare.</p>
+  <table class="wide">
+    <tr><th>Problema</th><th>Soluzione</th></tr>
+    <tr><td>Claude dice di non avere strumenti per CapCut</td><td>Controlla che l'estensione sia attiva in <b>Impostazioni → Estensioni</b> e apri una <b>nuova chat</b>. Se non basta, chiudi del tutto Claude Desktop e riaprilo.</td></tr>
+    <tr><td>L'estensione non si avvia / errore su Node.js</td><td>In <b>Impostazioni → Estensioni → Impostazioni avanzate</b> attiva l'uso di Node.js integrato, oppure installa Node.js 18+ da nodejs.org e riavvia Claude.</td></tr>
+    <tr><td>“Non salvo: CapCut è aperto”</td><td>Chiudi CapCut, anche dalla barra delle applicazioni e dall'icona vicino all'orologio. Se il messaggio resta, apri <b>Gestione attività</b> (<b>Ctrl+Maiusc+Esc</b>) e termina i processi CapCut rimasti.</td></tr>
+    <tr><td>Ho riaperto CapCut e le modifiche non ci sono</td><td>Probabilmente CapCut era aperto durante il salvataggio e ha sovrascritto. Chiudi CapCut e chiedi a Claude di rifare e salvare. Se la bozza è rovinata, ripristina un backup.</td></tr>
+    <tr><td>Claude non trova un progetto del team</td><td>Il progetto è solo nello spazio cloud del team. Scaricalo o aprilo in CapCut sul PC, chiudi CapCut e chiedi di nuovo l'elenco delle bozze.</td></tr>
+    <tr><td>Claude non trova le mie bozze</td><td>Sono in una cartella diversa da quella standard (<code>%LOCALAPPDATA%\CapCut\User Data\Projects\com.lveditor.draft</code>): scrivi quella giusta, che trovi nelle impostazioni di CapCut, nel campo <b>Cartella delle bozze CapCut</b> dell'estensione.</td></tr>
+    <tr><td>CapCut chiede l'abbonamento per le funzioni Pro</td><td>Non sei entrato con l'account del team. Esci dall'account in CapCut e accedi con quello aziendale; se il problema resta, chiedi a chi gestisce il piano di invitarti di nuovo.</td></tr>
+    <tr><td>“ffmpeg non trovato” o “manca il filtro whisper”</td><td>Chiedi: <i>«esegui capcut_setup con install true»</i>. Se dice “installato ma non trovato”, riavvia Claude Desktop.</td></tr>
+    <tr><td>“winget non disponibile” o installazioni bloccate</td><td>Installa <b>Programma di installazione app</b> <i>(App Installer)</i> dal Microsoft Store. Se il PC aziendale lo blocca, chiedi all'IT di installare ffmpeg completo (<code>Gyan.FFmpeg</code>). Poi ripeti il setup.</td></tr>
+    <tr><td>La trascrizione è molto lenta</td><td>È normale sui girati lunghi. Su PC poco potenti imposta il modello <code>medium-q5_0</code> o <code>small</code> nelle impostazioni dell'estensione.</td></tr>
+    <tr><td>La trascrizione sbaglia la lingua</td><td>Controlla il campo <b>Lingua del parlato</b> (es. <code>it</code>).</td></tr>
+    <tr><td>In CapCut compaiono “media mancanti”</td><td>I file originali sono stati spostati o rinominati. Rimettili dov'erano oppure ricollegali da CapCut.</td></tr>
+    <tr><td>I sottotitoli hanno lo stile sbagliato</td><td>Imposta la <b>Bozza modello per i testi</b> con il nome della bozza con lo stile aziendale (punto 3.2).</td></tr>
+    <tr><td>La skill non sembra attivarsi</td><td>Controlla che <code>capcut-reels</code> sia attiva in <b>Personalizza → Skills</b>. Aggiungi al prompt <i>«usa la skill capcut-reels»</i>.</td></tr>
+    <tr><td>Hai raggiunto il limite di utilizzo</td><td>Attendi il ripristino indicato da Claude o passa a un piano superiore. Per consumare meno: chat nuove per ogni video, meno fotogrammi.</td></tr>
+    <tr><td>La bozza non si apre più in CapCut</td><td>Chiedi: <i>«mostrami i backup della bozza "…" e ripristina l'ultimo»</i>. Poi riapri CapCut.</td></tr>
+  </table>
+  <p class="en" style="font-size:7.6pt; margin-top:3mm"><b>Note legali.</b> capcut-mcp è software libero (licenza MIT) di James Aldrin Boncales e collaboratori, fornito “così com'è”, senza garanzie. Non è affiliato a CapCut né a ByteDance. Il formato delle bozze di CapCut è proprietario e non documentato: conserva sempre i backup e una copia dei progetti importanti.</p>
+</section>
+
+</body>
+</html>
