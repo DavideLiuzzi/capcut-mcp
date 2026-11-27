@@ -18,13 +18,19 @@ Italian, one step at a time, and never assume they know file paths.
 
 ## Ground rules
 - **Edits live in memory until `capcut_save`.** Before saving, ask the user to close
-  CapCut completely (autosave would overwrite the edit). Don't pass `force` unless they
+  CapCut completely (autosave would overwrite the edit). On a Mac that means **Cmd+Q**:
+  closing the window leaves CapCut running. Don't pass `force` unless they
   confirm CapCut is closed and the save still refuses.
 - **Every save makes a backup** (`capcut_list_backups`, `capcut_restore_backup`). Mention
   this when the user is worried about breaking a project.
 - **Seconds everywhere.** Never pass microseconds.
-- **First run on a PC:** if a tool reports missing ffmpeg or Whisper model, run
+- **First run on a computer:** if a tool reports missing ffmpeg or Whisper model, run
   `capcut_setup` with `install: true` and keep the user informed (one-time ~600 MB).
+  Windows installs ffmpeg with winget. A Mac needs **Homebrew** first (Apple chip, macOS 15+):
+  if setup says it is missing, walk the user through it — open the Terminal app, paste the
+  install command from https://brew.sh, type the Mac password (nothing shows while typing),
+  wait for "Installation successful", quit Claude with Cmd+Q, reopen, run setup again.
+  Setup then installs `ffmpeg-full` (the Homebrew build with the Whisper filter, ~1–2 GB).
 - **Long jobs** (setup, transcription, downloads, ffmpeg) return a `jobId`; poll with
   `capcut_job_status` (it waits up to 50 s per call). Transcription costs ~8–15 s per
   spoken phrase: for long recordings tell the user the estimate and offer to continue
@@ -103,4 +109,8 @@ Italian, one step at a time, and never assume they know file paths.
 - The CapCut draft format is undocumented; after big edits ask the user to open the
   draft and check it. Backups make every change reversible.
 - No final export: the user exports from CapCut.
-- Windows only for automatic setup.
+- Automatic setup: Windows 10/11, and Macs with an Apple chip on macOS 15 Sequoia or later
+  (Intel Macs: not supported).
+- Mac: footage on Desktop / Documents / Downloads may make macOS ask the user for permission
+  ("Claude would like to access…": they should allow it). Suggest keeping footage in
+  Movies (Filmati) or a dedicated folder.

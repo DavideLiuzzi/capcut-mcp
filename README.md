@@ -10,19 +10,21 @@ An MCP server that lets Claude **read and edit CapCut desktop draft projects** �
 1. Install **Claude Desktop** and sign in.
 2. Double-click **`capcut-mcp.mcpb`** (or Settings → Extensions → Advanced settings → Install Extension). Leave the optional fields empty unless your drafts live in a custom folder.
 3. (Optional) Upload **`capcut-reels-skill.zip`** in Customize → Skills.
-4. In a new chat, ask: *"esegui capcut_setup con install true"*. First time only: installs ffmpeg via winget and downloads the Whisper model (~600 MB) to `%LOCALAPPDATA%\capcut-mcp`.
+4. In a new chat, ask: *"esegui capcut_setup con install true"*. First time only: installs ffmpeg and downloads the Whisper model (~600 MB).
+   - **Windows 10/11**: ffmpeg via winget (`Gyan.FFmpeg`); data in `%LOCALAPPDATA%\capcut-mcp`.
+   - **macOS (Apple silicon, macOS 15+)**: install [Homebrew](https://brew.sh) first; setup then runs `brew install ffmpeg-full` (the regular `ffmpeg` formula has no `whisper` filter); data in `~/Library/Application Support/capcut-mcp`. Intel Macs: no automatic setup (Homebrew no longer ships Intel bottles).
 
-Build both files with `npm install && npm run bundle` → `dist/`. Windows only for now (automatic setup uses winget).
+Build both files with `npm install && npm run bundle` → `dist/`. The same `.mcpb` works on Windows and macOS. Italian user guides: `dist/Guida-Claude-CapCut.pdf` (Windows) and `dist/Guida-Claude-CapCut-Mac.pdf` (source: `docs/guida-mac.html`).
 
 ## Requirements (manual / Claude Code setup)
 - **Node 18+**
-- **ffmpeg/ffprobe** — the full build with the `whisper` filter for transcription (`winget install Gyan.FFmpeg`); `capcut_setup` can install it
-- **CapCut desktop** (Windows layout assumed; macOS path is auto-detected too)
+- **ffmpeg/ffprobe** — a build with the `whisper` filter for transcription (Windows: `winget install Gyan.FFmpeg`; macOS: `brew install ffmpeg-full`); `capcut_setup` can install it
+- **CapCut desktop** on Windows or macOS. On macOS the timeline file is `draft_info.json` (Windows: `draft_content.json`); both are handled, and "CapCut is open" is detected with `pgrep` (quit it with Cmd+Q).
 
 ## Configure (env, optional)
 - `CAPCUT_DRAFTS_DIR` — your CapCut Drafts folder. Auto-detects the standard `%LOCALAPPDATA%\CapCut\...` (Windows) / `~/Movies/CapCut/...` (macOS) locations; **set this if your drafts live elsewhere** (e.g. a different drive).
 - `CAPCUT_TEMPLATE_DRAFT` — a draft whose text layer style should be used for new captions. If unset, the first text layer found in any draft is used.
-- `CAPCUT_MEDIA_DIR` — where `capcut_download` saves files (default `Videos\CapCut MCP`).
+- `CAPCUT_MEDIA_DIR` — where `capcut_download` saves files (default `Videos\CapCut MCP` on Windows, `~/Movies/CapCut MCP` on macOS).
 - `CAPCUT_WHISPER_MODEL` — `large-v3-turbo-q5_0` (default), `medium-q5_0`, `small`, `base`, `large-v3-turbo`.
 - `CAPCUT_LANGUAGE` — transcription language (default `it`).
 - `CAPCUT_FFMPEG_DIR` — use a specific ffmpeg build.
@@ -54,7 +56,7 @@ Leave the `env` values blank to auto-detect, or fill them in (see **Configure** 
 ## Workflow (important)
 1. **Close CapCut** on the draft you want to edit. CapCut autosaves on a timer; writing while it's open gets clobbered. `capcut_save` refuses if CapCut is running or the draft's `.locked` file is present (override with `force: true` only if you know it's safe).
 2. Edits are a **session**: `capcut_add_*` / `capcut_move_*` etc. accumulate in memory. Nothing hits disk until **`capcut_save`**.
-3. `capcut_save` validates, backs up the current files to `%LOCALAPPDATA%\capcut-mcp\backups\<draft>\<timestamp>` (last 25 kept; restore with `capcut_restore_backup`), writes `draft_content.json` **atomically**, and mirrors it into CapCut's per-timeline copy `Timelines/<id>/draft_content.json` (newer CapCut versions keep both).
+3. `capcut_save` validates, backs up the current files to `%LOCALAPPDATA%\capcut-mcp\backups\<draft>\<timestamp>` (macOS: `~/Library/Application Support/capcut-mcp/backups/…`) (last 25 kept; restore with `capcut_restore_backup`), writes `draft_content.json` (`draft_info.json` on macOS) **atomically**, and mirrors it into CapCut's per-timeline copy `Timelines/<id>/…` (newer CapCut versions keep both).
 4. Reopen the draft in CapCut.
 
 All times at the tool boundary are in **seconds** (converted to CapCut's microseconds internally).

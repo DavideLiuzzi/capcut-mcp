@@ -9,7 +9,7 @@ import path from 'path';
 import { CapCutDraft, cloneDraft, listDrafts, listBackups, restoreBackup, styleLibrary, capcutRunning, DRAFTS_DIR, STYLE_KINDS } from './core.js';
 import * as media from './media.js';
 
-const VERSION = '0.3.1';
+const VERSION = '0.4.0';
 const US = 1e6;
 const open = new Map();                       // name -> live CapCutDraft (unsaved edits)
 const get = name => { if (!open.has(name)) open.set(name, new CapCutDraft(name)); return open.get(name); };
@@ -19,27 +19,27 @@ const wrap = fn => async (a) => { try { const r = await fn(a); return r && r.con
 const sec = v => v == null ? undefined : Math.round(v * US);
 
 const INSTRUCTIONS = `
-Strumenti per montare bozze di CapCut desktop. Parla con l'utente in italiano, in modo semplice: spesso non Ã¨ un tecnico.
+Strumenti per montare bozze di CapCut desktop. Parla con l'utente in italiano, in modo semplice: spesso non è un tecnico.
 
 REGOLE
-- Le modifiche (add/move/trim/split/delete/rough_cut/set_props) restano in memoria finchÃ© non chiami capcut_save. Prima di salvare chiedi all'utente di CHIUDERE CapCut del tutto: se Ã¨ aperto, l'autosalvataggio di CapCut cancella le modifiche. capcut_save rifiuta se CapCut Ã¨ aperto; non usare force senza conferma esplicita.
+- Le modifiche (add/move/trim/split/delete/rough_cut/set_props) restano in memoria finché non chiami capcut_save. Prima di salvare chiedi all'utente di CHIUDERE CapCut del tutto: se è aperto, l'autosalvataggio di CapCut cancella le modifiche. Su Mac va chiuso con Cmd+Q (chiudere la finestra non basta). capcut_save rifiuta se CapCut è aperto; non usare force senza conferma esplicita.
 - Ogni salvataggio crea un backup. Per tornare indietro: capcut_list_backups e capcut_restore_backup.
-- Tutti i tempi sono in secondi. Non hai accesso ai file del PC: usa capcut_list_files per trovare cartelle e video, e capcut_view_frames per guardare i fotogrammi.
-- Se uno strumento dice che mancano ffmpeg o il modello Whisper, esegui capcut_setup con install:true (solo la prima volta; scarica circa 600 MB).
-- Lavori lunghi (setup, trascrizione, download, ffmpeg) partono in background e restituiscono un jobId: controlla con capcut_job_status. Se manca piÃ¹ di qualche minuto, di' all'utente quanto manca e invitalo a riscriverti piÃ¹ tardi invece di controllare di continuo.
+- Tutti i tempi sono in secondi. Non hai accesso ai file del computer: usa capcut_list_files per trovare cartelle e video, e capcut_view_frames per guardare i fotogrammi.
+- Se uno strumento dice che mancano ffmpeg o il modello Whisper, esegui capcut_setup con install:true (solo la prima volta; scarica circa 600 MB). Su Mac serve prima Homebrew: se capcut_setup dice che manca, spiega all'utente come installarlo (app Terminale, comando da https://brew.sh, password del Mac), poi riprova.
+- Lavori lunghi (setup, trascrizione, download, ffmpeg) partono in background e restituiscono un jobId: controlla con capcut_job_status. Se manca più di qualche minuto, di' all'utente quanto manca e invitalo a riscriverti più tardi invece di controllare di continuo.
 
 PREMONTAGGIO (togliere silenzi e frasi sbagliate da un girato parlato)
 1. capcut_read_timeline sulla bozza: trova la traccia video principale e i file del girato (campo path).
-2. capcut_transcribe su ogni file: dÃ  i "blocchi" di parlato con inizio/fine (secondi nel file originale), volume in dB e testo. Ogni blocco Ã¨ trascritto da solo, quindi le prese ripetute restano separate.
-3. Scegli i blocchi da tenere: tieni TUTTE le prese complete di ogni frase, anche se ripetute piÃ¹ volte (sceglierÃ  l'utente). Togli solo silenzi, partenze interrotte o frasi lasciate a metÃ , rumori e commenti fuori copione. Blocchi brevissimi con testi tipo "Grazie a tutti", "Sottotitoli...", "[Musica]" sono allucinazioni di Whisper, non parlato. Se una presa completa Ã¨ dubbia, tienila e segnalala.
-   SUGGERIMENTI: spesso qualcuno dietro la camera detta la frase e chi Ã¨ inquadrato la ripete. La frase dettata NON Ã¨ una presa: toglila e tieni solo quella detta da chi Ã¨ in video. Indizi: la stessa frase due volte di seguito, la prima piÃ¹ bassa (â–½ basso, â†» ripetuto piÃ¹ forte), oppure un blocco che inizia basso e finisce a voce piena (â†³: tieni solo la parte forte). Conferma SEMPRE con capcut_view_frames dentro il blocco: se la persona inquadrata Ã¨ ferma con la bocca chiusa sta ascoltando (suggerimento); se parla e gesticola Ã¨ una presa. Una frase sussurrata apposta (mano vicino alla bocca) Ã¨ bassa ma Ã¨ una presa. Se in un blocco lungo le stesse parole compaiono due volte, guarda i fotogrammi in piÃ¹ punti.
+2. capcut_transcribe su ogni file: dà i "blocchi" di parlato con inizio/fine (secondi nel file originale), volume in dB e testo. Ogni blocco è trascritto da solo, quindi le prese ripetute restano separate.
+3. Scegli i blocchi da tenere: tieni TUTTE le prese complete di ogni frase, anche se ripetute più volte (sceglierà l'utente). Togli solo silenzi, partenze interrotte o frasi lasciate a metà, rumori e commenti fuori copione. Blocchi brevissimi con testi tipo "Grazie a tutti", "Sottotitoli...", "[Musica]" sono allucinazioni di Whisper, non parlato. Se una presa completa è dubbia, tienila e segnalala.
+   SUGGERIMENTI: spesso qualcuno dietro la camera detta la frase e chi è inquadrato la ripete. La frase dettata NON è una presa: toglila e tieni solo quella detta da chi è in video. Indizi: la stessa frase due volte di seguito, la prima più bassa (▽ basso, ↻ ripetuto più forte), oppure un blocco che inizia basso e finisce a voce piena (↳: tieni solo la parte forte). Conferma SEMPRE con capcut_view_frames dentro il blocco: se la persona inquadrata è ferma con la bocca chiusa sta ascoltando (suggerimento); se parla e gesticola è una presa. Una frase sussurrata apposta (mano vicino alla bocca) è bassa ma è una presa. Se in un blocco lungo le stesse parole compaiono due volte, guarda i fotogrammi in più punti.
 4. capcut_rough_cut con le parti da tenere in ordine cronologico: ogni parte diventa un segmento separato sulla traccia principale. Le altre tracce (titoli, musica) non vengono spostate: dillo all'utente.
 5. capcut_validate, poi chiedi di chiudere CapCut e capcut_save. Riassumi: durata prima/dopo, numero di prese per frase, prese dubbie, quanti suggerimenti da dietro la camera hai tolto.
 
 GRAFICHE, MOTION E B-ROLL
 - Le animazioni generate con altri connettori (es. Higgsfield) arrivano come URL: scaricale con capcut_download, poi mettile su una traccia sopra il video con capcut_add_video (volume 0 se non serve l'audio). Se il file non ha trasparenza (hasAlpha false) e deve stare sopra il video, avvisa l'utente.
-- Transizioni, animazioni ed effetti di CapCut: non puoi inventarli, ma puoi copiarli da un clip che li ha giÃ . Usa capcut_style_library per vedere quelli giÃ  usati nelle bozze e capcut_apply_style per applicarli.
-- Testi: capcut_add_text copia lo stile da un testo giÃ  esistente nelle bozze.
+- Transizioni, animazioni ed effetti di CapCut: non puoi inventarli, ma puoi copiarli da un clip che li ha già. Usa capcut_style_library per vedere quelli già usati nelle bozze e capcut_apply_style per applicarli.
+- Testi: capcut_add_text copia lo stile da un testo già esistente nelle bozze.
 `.trim();
 
 const s = new McpServer({ name: 'capcut', version: VERSION }, { instructions: INSTRUCTIONS });
@@ -54,12 +54,15 @@ async function job(kind, fn, waitSec = 20) {
 }
 
 // ---------------- setup & jobs ----------------
-tool('capcut_setup', 'Controlla cosa serve (ffmpeg, modello Whisper, cartella bozze). Con install:true installa ffmpeg (winget) e scarica il modello Whisper (~600 MB) in background: da fare una volta sola.',
+tool('capcut_setup', 'Controlla cosa serve (ffmpeg, modello Whisper, cartella bozze). Con install:true installa ffmpeg (winget su Windows, Homebrew su Mac) e scarica il modello Whisper (~600 MB) in background: da fare una volta sola.',
   { install: z.boolean().optional(), model: z.enum(Object.keys(media.MODELS)).optional().describe('modello Whisper (default large-v3-turbo-q5_0)') },
   async ({ install, model }) => {
     const status = { ...media.setupStatus(), draftsDir: DRAFTS_DIR, drafts: listDrafts().length, capcutRunning: capcutRunning(), version: VERSION };
     const ready = status.ffmpeg && status.ffprobe && status.whisperFilter && status.modelFile && status.vadFile;
-    if (!install) return { ready: !!ready, ...status, models: media.MODELS, hint: ready ? 'tutto pronto' : 'esegui di nuovo con install:true' };
+    const macHint = status.platform === 'mac' && !(status.ffmpeg && status.whisperFilter)
+      ? (status.macProblem || (!status.homebrew ? 'su Mac serve prima Homebrew (https://brew.sh): spiega all\'utente come installarlo dal Terminale, poi esegui con install:true' : null))
+      : null;
+    if (!install) return { ready: !!ready, ...status, models: media.MODELS, hint: ready ? 'tutto pronto' : macHint || 'esegui di nuovo con install:true' };
     return job('setup', j => media.setup(j, { model: model || media.MODEL_NAME }), 25);
   });
 
@@ -72,7 +75,7 @@ tool('capcut_job_status', 'Stato di un lavoro in background (setup, trascrizione
   }, RO);
 
 // ---------------- drafts ----------------
-tool('capcut_list_drafts', 'Elenca le bozze di CapCut (dalla piÃ¹ recente), con durata e se sono aperte.', {},
+tool('capcut_list_drafts', 'Elenca le bozze di CapCut (dalla più recente), con durata e se sono aperte.', {},
   async () => ({ draftsDir: DRAFTS_DIR, capcutRunning: capcutRunning(), drafts: listDrafts() }), RO);
 
 tool('capcut_read_timeline', 'Legge una bozza: formato, fps, tracce e ogni segmento (id, file, tempi, testo, stili). Mostra anche le modifiche non ancora salvate.',
@@ -89,7 +92,7 @@ const placeOpts = {
   durSec: z.number().optional().describe('durata (default: tutto il file; immagini 5 s)'),
   srcStartSec: z.number().optional().describe('punto di ingresso dentro il file, secondi'),
   trackIndex: z.number().int().optional().describe('traccia di destinazione; se omessa usa una traccia libera sopra il video principale o ne crea una'),
-  trackRenderIndex: z.number().int().optional().describe('ordine dei livelli; piÃ¹ alto = sopra'),
+  trackRenderIndex: z.number().int().optional().describe('ordine dei livelli; più alto = sopra'),
   scale: z.number().optional(), posX: z.number().optional().describe('-1..1 circa, 0 = centro'), posY: z.number().optional(),
   rotation: z.number().optional(), opacity: z.number().optional(), volume: z.number().optional().describe('0 = muto, 1 = normale'), speed: z.number().optional(),
 };
@@ -105,7 +108,7 @@ tool('capcut_add_image', 'Aggiunge un\'immagine (png/jpg) alla bozza.', { draft:
 tool('capcut_add_audio', 'Aggiunge un audio (musica, effetto, voce) alla bozza.', { draft: z.string(), file: z.string(), ...placeOpts },
   async (a) => get(a.draft).addAudio(a.file, optsFrom(a)));
 
-tool('capcut_add_text', 'Aggiunge un testo. Lo stile (font, contorno, animazione) Ã¨ copiato da un testo giÃ  presente in questa bozza o in un\'altra.',
+tool('capcut_add_text', 'Aggiunge un testo. Lo stile (font, contorno, animazione) è copiato da un testo già presente in questa bozza o in un\'altra.',
   { draft: z.string(), text: z.string(), atSec: z.number(), durSec: z.number().optional(),
     fontSize: z.number().optional(), color: z.string().optional().describe('esadecimale, es. #ffffff'),
     posX: z.number().optional(), posY: z.number().optional(), scale: z.number().optional(), trackIndex: z.number().int().optional() },
@@ -131,7 +134,7 @@ tool('capcut_split_segment', 'Taglia un segmento in due in un punto della timeli
 tool('capcut_delete_segment', 'Elimina un segmento.',
   { draft: z.string(), segmentId: z.string() }, async ({ draft, segmentId }) => get(draft).deleteSegment(segmentId));
 
-tool('capcut_set_props', 'Imposta posizione / scala / rotazione / opacitÃ  / volume / velocitÃ  / visibilitÃ  di un segmento.',
+tool('capcut_set_props', 'Imposta posizione / scala / rotazione / opacità / volume / velocità / visibilità di un segmento.',
   { draft: z.string(), segmentId: z.string(), scale: z.number().optional(), scaleX: z.number().optional(), scaleY: z.number().optional(),
     posX: z.number().optional(), posY: z.number().optional(), rotation: z.number().optional(), opacity: z.number().optional(),
     volume: z.number().optional(), speed: z.number().optional(), visible: z.boolean().optional() },
@@ -148,10 +151,10 @@ tool('capcut_rough_cut', 'PREMONTAGGIO: ricostruisce la traccia video principale
     padSec: z.number().optional().describe('margine aggiunto prima/dopo ogni parte (default 0.08 s)') },
   async ({ draft, keeps, trackIndex, padSec }) => get(draft).roughCut(keeps, { trackIndex, padSec }));
 
-tool('capcut_style_library', 'Elenca transizioni, animazioni ed effetti giÃ  usati in tutte le bozze, con il clip da cui copiarli (per capcut_apply_style).', {},
+tool('capcut_style_library', 'Elenca transizioni, animazioni ed effetti già usati in tutte le bozze, con il clip da cui copiarli (per capcut_apply_style).', {},
   async () => ({ styles: styleLibrary() }), RO);
 
-tool('capcut_apply_style', 'Copia transizioni / animazioni / effetti da un clip che li ha giÃ  (anche di un\'altra bozza) su uno o piÃ¹ segmenti.',
+tool('capcut_apply_style', 'Copia transizioni / animazioni / effetti da un clip che li ha già (anche di un\'altra bozza) su uno o più segmenti.',
   { draft: z.string(), segmentIds: z.array(z.string()).min(1), fromDraft: z.string().optional(), fromSegmentId: z.string(),
     kinds: z.array(z.enum(STYLE_KINDS)).optional().describe('default: tutti quelli presenti sul clip di origine') },
   async ({ draft, segmentIds, fromDraft, fromSegmentId, kinds }) => get(draft).applyStyle(segmentIds, { fromDraft: fromDraft || draft, fromSegmentId, kinds }));
@@ -162,7 +165,7 @@ tool('capcut_raw_patch', 'Avanzato: unisce una patch JSON dentro draft_content (
 tool('capcut_validate', 'Controlla la bozza (anche le modifiche non salvate): sovrapposizioni, id duplicati, file mancanti.',
   { draft: z.string() }, async ({ draft }) => get(draft).validate(), RO);
 
-tool('capcut_save', 'Scrive le modifiche su disco (con backup automatico e aggiornando anche la copia in Timelines). Rifiuta se CapCut Ã¨ aperto.',
+tool('capcut_save', 'Scrive le modifiche su disco (con backup automatico e aggiornando anche la copia in Timelines). Rifiuta se CapCut è aperto.',
   { draft: z.string(), note: z.string().optional().describe('promemoria salvato col backup'), force: z.boolean().optional() },
   async ({ draft, force, note }) => {
     if (!open.has(draft)) return { saved: false, message: 'nessuna modifica in sospeso per questa bozza' };
@@ -180,7 +183,7 @@ tool('capcut_restore_backup', 'Riporta una bozza a un backup (prima salva un bac
   async ({ draft, backupId, force }) => { open.delete(draft); return restoreBackup(draft, backupId, { force: !!force }); });
 
 // ---------------- media ----------------
-tool('capcut_list_files', 'Sfoglia le cartelle del PC per trovare video, audio e immagini. Senza dir mostra le cartelle principali.',
+tool('capcut_list_files', 'Sfoglia le cartelle del computer per trovare video, audio e immagini. Senza dir mostra le cartelle principali.',
   { dir: z.string().optional(), all: z.boolean().optional().describe('mostra anche i file non multimediali') },
   async ({ dir, all }) => media.listFiles(dir, { all: !!all }), RO);
 
@@ -201,7 +204,7 @@ tool('capcut_view_frames', 'Mostra fotogrammi come immagini, per guardare il vid
           const p = d._matPath(sg); if (!p) continue;
           if (!best || (sg.render_index || 0) > (best.sg.render_index || 0)) best = { sg, p };
         }
-        if (best) shots.push({ file: best.p, t: ((best.sg.source_timerange?.start || 0) + (at - best.sg.target_timerange.start) * (best.sg.speed || 1)) / US, label: `timeline ${t}s â†’ ${path.basename(best.p)}` });
+        if (best) shots.push({ file: best.p, t: ((best.sg.source_timerange?.start || 0) + (at - best.sg.target_timerange.start) * (best.sg.speed || 1)) / US, label: `timeline ${t}s → ${path.basename(best.p)}` });
       }
     } else throw new Error('serve file oppure draft');
     const content = [];
@@ -218,20 +221,20 @@ function formatTranscript(r) {
   const fmt = x => { const m = Math.floor(x / 60); return `${m}:${(x - m * 60).toFixed(2).padStart(5, '0')}`; };
   const lvl = r.mainVoiceDb != null;
   const lines = r.blocks.map(b => {
-    const marks = [b.quiet && 'â–½ basso', b.repeatedLouderIn != null && `â†» ripetuto piÃ¹ forte in #${b.repeatedLouderIn}`].filter(Boolean).join(' ');
-    const head = `#${b.i} [${b.a.toFixed(2)}â€“${b.b.toFixed(2)}] (${fmt(b.a)})${b.levelDb != null ? ` ${b.levelDb}dB` : ''}${marks ? ' ' + marks : ''}`;
-    const parts = b.parts ? `\n     â†³ inizia basso e finisce a voce piena: ${b.parts.map(p => `${p.a.toFixed(2)}â€“${p.b.toFixed(2)} ${p.levelDb}dB${p.quiet ? ' â–½' : ''}`).join(' | ')}` : '';
+    const marks = [b.quiet && '▽ basso', b.repeatedLouderIn != null && `↻ ripetuto più forte in #${b.repeatedLouderIn}`].filter(Boolean).join(' ');
+    const head = `#${b.i} [${b.a.toFixed(2)}–${b.b.toFixed(2)}] (${fmt(b.a)})${b.levelDb != null ? ` ${b.levelDb}dB` : ''}${marks ? ' ' + marks : ''}`;
+    const parts = b.parts ? `\n     ↳ inizia basso e finisce a voce piena: ${b.parts.map(p => `${p.a.toFixed(2)}–${p.b.toFixed(2)} ${p.levelDb}dB${p.quiet ? ' ▽' : ''}`).join(' | ')}` : '';
     return `${head} ${b.text || '(vuoto)'}${parts}`;
   });
   const legend = lvl
-    ? `voce principale ${r.mainVoiceDb} dB. â–½ = almeno ${media.QUIET_DB} dB piÃ¹ bassa Â· â†» = stesse parole ripetute piÃ¹ forte poco dopo Â· â†³ = blocco diviso per volume.\n` +
+    ? `voce principale ${r.mainVoiceDb} dB. ▽ = almeno ${media.QUIET_DB} dB più bassa · ↻ = stesse parole ripetute più forte poco dopo · ↳ = blocco diviso per volume.\n` +
       `Sono indizi di una frase SUGGERITA da dietro la camera (o sussurrata apposta): prima di decidere guarda i fotogrammi con capcut_view_frames.\n`
     : '';
-  return `TRASCRIZIONE PER BLOCCHI â€” file: ${r.file}\ndurata ${fmt(r.durationSec)}, ${r.blocks.length} blocchi, soglia ${r.thresholdDb} dB, modello ${r.model}, ${r.seconds ?? 0} s\n` +
-    legend + `Tempi in secondi nel file originale: usali cosÃ¬ in capcut_rough_cut (file + startSec/endSec).\n\n${lines.join('\n')}`;
+  return `TRASCRIZIONE PER BLOCCHI — file: ${r.file}\ndurata ${fmt(r.durationSec)}, ${r.blocks.length} blocchi, soglia ${r.thresholdDb} dB, modello ${r.model}, ${r.seconds ?? 0} s\n` +
+    legend + `Tempi in secondi nel file originale: usali così in capcut_rough_cut (file + startSec/endSec).\n\n${lines.join('\n')}`;
 }
 
-tool('capcut_transcribe', 'Trascrive un video/audio a blocchi di parlato (Whisper, sul PC, offline). Ogni blocco ha inizio/fine nel file, volume e testo: le prese ripetute restano separate e le frasi probabilmente suggerite da dietro la camera sono segnalate. Lavoro lungo: restituisce un jobId se non finisce subito.',
+tool('capcut_transcribe', 'Trascrive un video/audio a blocchi di parlato (Whisper, sul computer, offline). Ogni blocco ha inizio/fine nel file, volume e testo: le prese ripetute restano separate e le frasi probabilmente suggerite da dietro la camera sono segnalate. Lavoro lungo: restituisce un jobId se non finisce subito.',
   { file: z.string(), language: z.string().optional().describe('default it'), thresholdDb: z.number().optional().describe('soglia del parlato in dB (default automatica)'),
     model: z.enum(Object.keys(media.MODELS)).optional() },
   async ({ file, language, thresholdDb, model }) => {

@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Claude × CapCut – Guida Mac</title>
+<!-- Sorgente della guida per Mac. PDF (A4): msedge --headless=new --no-pdf-header-footer --print-to-pdf=dist/Guida-Claude-CapCut-Mac.pdf docs/guida-mac.html
+     Dopo modifiche al testo ricontrolla i numeri di pagina dell'indice. -->
+
+<style>
+  :root {
+    --navy: #253446; --navy-2: #34465c; --ink: #1f2933; --muted: #5f6b7a; --line: #e3e7ec;
+    --accent: #c8502e; --salmon: #eba58b; --accent-soft: #fbece5; --accent-line: #f1c7b6;
+    --green: #2b7a67; --green-bg: #e8f3ef; --amber: #a86410; --amber-bg: #fdf3e1;
+    --grey-bg: #f3f5f7; --grey-line: #9aa5b1; --red: #b42318;
+  }
+  @page { size: A4; margin: 14mm 17mm 16mm 17mm;
+    @bottom-left { content: "Claude × CapCut · Guida per Mac"; font: 8pt "Segoe UI", sans-serif; color: #8a96a3; }
+    @bottom-right { content: counter(page); font: 8pt "Segoe UI", sans-serif; color: #8a96a3; }
+  }
+  @page cover { margin: 0; @bottom-left { content: none; } @bottom-right { content: none; } }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; font-family: "Segoe UI", "Noto Sans", system-ui, sans-serif; font-size: 9pt; line-height: 1.42; color: var(--ink); background: #fff; }
+  code, .mono { font-family: "Cascadia Mono", Consolas, "SF Mono", monospace; font-size: 0.86em; background: #f1f3f5; border: 1px solid var(--line); border-radius: 4px; padding: 0.5px 4px; white-space: nowrap; }
+  pre.cmd { font-family: "Cascadia Mono", Consolas, monospace; font-size: 8.4pt; background: #1e2733; color: #e8edf2; border-radius: 6px; padding: 9px 12px; margin: 6px 0 2px; white-space: pre-wrap; word-break: break-all; }
+  kbd { font-family: "Segoe UI", "Segoe UI Symbol", sans-serif; font-size: 0.86em; border: 1px solid #c9d1da; border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; background: #fff; white-space: nowrap; }
+  b, strong { font-weight: 700; }
+  .en { color: var(--muted); }
+  a { color: var(--accent); text-decoration: none; font-weight: 600; }
+
+  /* ---------- cover ---------- */
+  .cover { page: cover; height: 297mm; display: flex; flex-direction: column; break-after: page; }
+  .cover-top { background: var(--navy); color: #fff; height: 69%; padding: 40mm 22mm 0; }
+  .eyebrow { color: var(--salmon); font-weight: 700; letter-spacing: 0.32em; font-size: 9.5pt; }
+  .cover h1 { font-size: 46pt; line-height: 1.1; margin: 8mm 0 6mm; font-weight: 700; letter-spacing: -0.01em; }
+  .cover h1 .x { color: var(--salmon); font-weight: 700; }
+  .cover .lead { font-size: 13.5pt; line-height: 1.55; color: #d8dee6; max-width: 150mm; margin: 0; }
+  .cover .lead b { color: #fff; }
+  .chips { margin-top: 10mm; display: flex; flex-wrap: wrap; gap: 3mm; }
+  .chips span { border: 1px solid #6d7d90; border-radius: 99px; padding: 1.5mm 4mm; font-size: 9pt; color: #dfe5ec; }
+  .cover-bottom { flex: 1; padding: 16mm 22mm 10mm; display: flex; flex-direction: column; }
+  .label { font-size: 8.5pt; font-weight: 700; letter-spacing: 0.28em; color: var(--muted); text-transform: uppercase; }
+  .brief { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8mm; margin-top: 9mm; }
+  .brief .num { width: 10mm; height: 10mm; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 11pt; }
+  .brief h4 { margin: 4mm 0 1mm; font-size: 11pt; }
+  .brief p { margin: 0; color: var(--muted); font-size: 9pt; line-height: 1.45; }
+  .cover-foot { margin-top: auto; border-top: 1px solid var(--line); padding-top: 3mm; display: flex; justify-content: space-between; color: var(--muted); font-size: 8pt; }
+
+  /* ---------- chapters ---------- */
+  .chapter { break-before: page; }
+  .chapter-head { display: flex; align-items: center; gap: 4mm; margin: 0 0 3mm; }
+  .chapter-head .n { width: 11mm; height: 11mm; border-radius: 2.5mm; background: var(--accent); color: #fff; font-weight: 700; font-size: 13pt; display: flex; align-items: center; justify-content: center; flex: none; }
+  .chapter-head h2 { margin: 0; font-size: 19pt; font-weight: 700; color: var(--navy); letter-spacing: -0.01em; }
+  .intro { color: var(--muted); font-size: 9.8pt; margin: 0 0 3.5mm; }
+  h3 { font-size: 11.5pt; color: var(--navy); margin: 4.2mm 0 2mm; break-after: avoid; }
+  p { margin: 0 0 2.5mm; }
+
+  .steps { list-style: none; padding: 0; margin: 0 0 3mm; counter-reset: s; }
+  .steps > li { position: relative; padding-left: 9mm; margin-bottom: 2mm; counter-increment: s; break-inside: avoid; }
+  .steps > li::before { content: counter(s); position: absolute; left: 0; top: 0.2mm; width: 6mm; height: 6mm; border-radius: 50%; background: var(--navy); color: #fff; font-size: 8pt; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .steps > li > b:first-child { display: block; }
+  .steps > li > span.d { color: var(--muted); }
+
+  .box { border-radius: 2.5mm; padding: 2.8mm 4mm; margin: 3mm 0; border-left: 3px solid var(--grey-line); background: var(--grey-bg); break-inside: avoid; }
+  .box .t { font-weight: 700; font-size: 8.5pt; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.5mm; }
+  .box p:last-child, .box ul:last-child { margin-bottom: 0; }
+  .box ul { margin: 0; padding-left: 5mm; }
+  .box li { margin-bottom: 1mm; }
+  .box.tip { background: var(--green-bg); border-color: var(--green); } .box.tip .t { color: var(--green); }
+  .box.warn { background: var(--amber-bg); border-color: var(--amber); } .box.warn .t { color: var(--amber); }
+
+  table { width: 100%; border-collapse: collapse; margin: 2.5mm 0; font-size: 8.7pt; }
+  th { background: var(--navy); color: #fff; text-align: left; font-size: 8.3pt; padding: 1.9mm 3mm; }
+  td { border-bottom: 1px solid var(--line); padding: 1.7mm 3mm; vertical-align: top; }
+  td:first-child { font-weight: 600; width: 36%; }
+  table.wide td:first-child { width: 28%; }
+  tr { break-inside: avoid; }
+
+  .prompt { border: 1px solid var(--line); border-radius: 2.5mm; margin: 1.8mm 0; break-inside: avoid; overflow: hidden; }
+  .prompt .q { padding: 1.9mm 3.2mm; font-size: 9.3pt; }
+  .prompt .q::before { content: "PROMPT"; background: var(--accent); color: #fff; font-size: 7pt; font-weight: 700; letter-spacing: 0.08em; padding: 0.6mm 2mm; border-radius: 1mm; margin-right: 2.5mm; position: relative; top: -1px; }
+  .prompt .note { background: var(--grey-bg); border-top: 1px solid var(--line); padding: 1.3mm 3.2mm; color: var(--muted); font-size: 8pt; }
+  .steps .prompt { margin-top: 1.5mm; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; margin: 2.5mm 0; }
+  .check { border: 1px solid var(--line); border-radius: 2.5mm; padding: 2.4mm 3.2mm 2.4mm 10mm; position: relative; break-inside: avoid; }
+  .check::before { content: ""; position: absolute; left: 3.5mm; top: 3.6mm; width: 3.6mm; height: 3.6mm; border: 1.5px solid var(--accent); border-radius: 1mm; }
+  .check b { display: block; }
+  .check span { color: var(--muted); font-size: 8.5pt; }
+  .file { border: 1px solid var(--line); border-radius: 2.5mm; padding: 3mm; display: flex; gap: 3mm; break-inside: avoid; }
+  .file .ic { width: 11mm; height: 11mm; border-radius: 1.8mm; background: var(--navy); color: #fff; font-size: 6.5pt; font-weight: 700; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 1.5mm; flex: none; }
+  .file .ic.zip { background: var(--accent); }
+  .file .nm { font-family: "Cascadia Mono", Consolas, monospace; font-weight: 700; font-size: 8.8pt; }
+  .file span { color: var(--muted); font-size: 8.8pt; }
+  .can { background: var(--green-bg); border-left: 3px solid var(--green); border-radius: 2.5mm; padding: 2.8mm 4mm; }
+  .cant { background: var(--amber-bg); border-left: 3px solid var(--amber); border-radius: 2.5mm; padding: 2.8mm 4mm; }
+  .can .t, .cant .t { font-weight: 700; font-size: 8.5pt; letter-spacing: 0.06em; margin-bottom: 1.5mm; }
+  .can .t { color: var(--green); } .cant .t { color: var(--amber); }
+  .can ul, .cant ul { margin: 0; padding-left: 4.5mm; font-size: 8.6pt; } .can li, .cant li { margin-bottom: 0.4mm; }
+
+  .flow { display: grid; grid-template-columns: 1fr 4mm 1fr 4mm 1fr 4mm 1fr 4mm 1fr; align-items: stretch; margin: 3mm 0 2mm; }
+  .flow .st { border: 1px solid var(--line); border-radius: 2.5mm; padding: 3mm 2mm; text-align: center; }
+  .flow .st.hl { background: var(--accent-soft); border-color: var(--accent-line); }
+  .flow .st .k { color: var(--accent); font-size: 7pt; font-weight: 700; letter-spacing: 0.18em; }
+  .flow .st b { display: block; font-size: 9.5pt; margin: 1mm 0; }
+  .flow .st span { color: var(--muted); font-size: 7.8pt; line-height: 1.35; display: block; }
+  .flow .ar { display: flex; align-items: center; justify-content: center; color: #9aa5b1; }
+
+  .rules { margin: 2mm 0; }
+  .rule { display: flex; gap: 3.5mm; padding: 1.9mm 0; border-bottom: 1px solid var(--line); break-inside: avoid; }
+  .rule .i { width: 6mm; height: 6mm; border-radius: 50%; color: #fff; font-weight: 700; font-size: 8.5pt; display: flex; align-items: center; justify-content: center; flex: none; margin-top: 0.3mm; }
+  .i.r { background: var(--red); } .i.a { background: #c98a1b; } .i.n { background: var(--navy); } .i.g { background: var(--green); }
+  .rule > div > b { display: block; } .rule > div > span { color: var(--muted); font-size: 8.6pt; }
+
+  .toc { margin: 4mm 0 6mm; }
+  .toc .row { display: grid; grid-template-columns: 8mm 1fr 10mm; padding: 2.6mm 0; border-bottom: 1px solid var(--line); }
+  .toc .row .k { color: var(--accent); font-weight: 700; }
+  .toc .row .p { text-align: right; font-weight: 600; }
+  .toc .row small { display: block; color: var(--muted); font-size: 8.3pt; }
+  h1.plain { font-size: 20pt; color: var(--navy); margin: 0 0 4mm; }
+</style>
+</head>
+<body>
+
+<!-- ======================= COPERTINA ======================= -->
+<section class="cover">
+  <div class="cover-top">
+    <div class="eyebrow">GUIDA PRATICA · MAC · V0.4.0</div>
+    <h1>Claude <span class="x">×</span> CapCut</h1>
+    <p class="lead">Come installare Claude Desktop sul Mac, collegare l'estensione CapCut e la skill <b>capcut-reels</b>, e far montare le tue bozze a Claude: premontaggio, sottotitoli, transizioni e grafiche.</p>
+    <div class="chips"><span>Mac con chip Apple</span><span>macOS 15 o successivo</span><span>CapCut desktop</span><span>Trascrizione offline</span><span>Backup automatici</span></div>
+  </div>
+  <div class="cover-bottom">
+    <div class="label">In breve</div>
+    <div class="brief">
+      <div><div class="num">1</div><h4>Installa Claude</h4><p>Scarica Claude per Mac e accedi con il tuo account.</p></div>
+      <div><div class="num">2</div><h4>Collega CapCut</h4><p>Doppio clic sul file <code>.mcpb</code>, poi carica la skill.</p></div>
+      <div><div class="num">3</div><h4>Setup una volta</h4><p>Installa Homebrew, poi chiedi a Claude <code>capcut_setup</code>.</p></div>
+      <div><div class="num">4</div><h4>Chiedi e salva</h4><p>Descrivi il montaggio, esci da CapCut con ⌘Q e fai salvare.</p></div>
+    </div>
+    <div class="cover-foot"><span>Estensione capcut-mcp · Skill capcut-reels</span><span>Novembre 2026</span></div>
+  </div>
+</section>
+
+<!-- ======================= INDICE ======================= -->
+<section>
+  <h1 class="plain">Indice</h1>
+  <div class="toc">
+    <div class="row"><span class="k">0</span><span>Cosa ti serve<small>Requisiti e i due file del pacchetto</small></span><span class="p" data-toc="c0">3</span></div>
+    <div class="row"><span class="k">1</span><span>Installare Claude Desktop e collegare l'account<small>Download, installazione nel Mac, accesso, scelta del piano</small></span><span class="p" data-toc="c1">4</span></div>
+    <div class="row"><span class="k">2</span><span>Collegare l'estensione CapCut (MCP)<small>Installazione del file .mcpb e impostazioni</small></span><span class="p" data-toc="c2">5</span></div>
+    <div class="row"><span class="k">3</span><span>Importare la skill capcut-reels<small>Caricamento dello zip e attivazione</small></span><span class="p" data-toc="c3">6</span></div>
+    <div class="row"><span class="k">4</span><span>Primo avvio: Homebrew e il setup<small>Homebrew, ffmpeg, modello di trascrizione, permessi di macOS e degli strumenti</small></span><span class="p" data-toc="c4">7</span></div>
+    <div class="row"><span class="k">5</span><span>Come si usa<small>Il flusso di lavoro, i concetti, il premontaggio passo passo</small></span><span class="p" data-toc="c5">9</span></div>
+    <div class="row"><span class="k">6</span><span>I prompt da dare<small>Libreria di richieste pronte da copiare</small></span><span class="p" data-toc="c6">10</span></div>
+    <div class="row"><span class="k">7</span><span>Le accortezze<small>Regole d'oro per non perdere lavoro</small></span><span class="p" data-toc="c7">12</span></div>
+    <div class="row"><span class="k">8</span><span>Risoluzione dei problemi<small>Errori comuni e soluzioni</small></span><span class="p" data-toc="c8">13</span></div>
+    <div class="row"><span class="k">A</span><span>Appendice<small>Elenco strumenti, dove sono i file, installazione manuale</small></span><span class="p" data-toc="cA">14</span></div>
+  </div>
+  <div class="box">
+    <div class="t">Come leggere questa guida</div>
+    <p>Le voci dei menu sono scritte così: <b>Impostazioni</b> <span class="en">(Settings)</span> → <b>Estensioni</b> <span class="en">(Extensions)</span>. Tra parentesi trovi il nome inglese, perché l'app può essere in italiano o in inglese e le etichette possono cambiare leggermente da una versione all'altra.</p>
+    <p>I tasti del Mac: <b>⌘</b> è il tasto <b>Cmd</b> (Command), <b>⇧</b> è Maiusc. Per esempio <b>⌘Q</b> vuol dire: tieni premuto Cmd e premi Q.</p>
+    <p>I riquadri <b>PROMPT</b> contengono frasi da copiare e incollare nella chat di Claude: sostituisci solo i nomi tra virgolette con quelli delle tue bozze.</p>
+  </div>
+</section>
+
+<!-- ======================= 0 ======================= -->
+<section class="chapter" id="c0">
+  <div class="chapter-head"><div class="n">0</div><h2>Cosa ti serve</h2></div>
+  <p class="intro">Prima di iniziare controlla di avere tutto. L'installazione completa richiede circa 30–40 minuti, la maggior parte per gli scaricamenti automatici (Homebrew, ffmpeg e il modello di trascrizione).</p>
+  <div class="grid2">
+    <div class="check"><b>Un Mac con chip Apple e macOS 15 o successivo</b><span>M1, M2, M3, M4 o più recenti, con macOS 15 Sequoia o più nuovo. Controlla dal menu Apple (la mela in alto a sinistra) → Informazioni su questo Mac: alla voce “Chip” deve esserci “Apple M…”. I Mac con processore Intel non sono supportati.</span></div>
+    <div class="check"><b>CapCut desktop installato</b><span>Con almeno una bozza (progetto) già creata e aperta una volta.</span></div>
+    <div class="check"><b>Un account Claude</b><span>Si crea gratis durante l'accesso. Per lavorare con continuità è consigliato un piano a pagamento (Pro o superiore).</span></div>
+    <div class="check"><b>Circa 5 GB liberi, internet e la password del Mac</b><span>Per Homebrew, ffmpeg e il modello Whisper (~600 MB), scaricati una sola volta. La password serve per installare Homebrew.</span></div>
+  </div>
+
+  <h3>I due file del pacchetto</h3>
+  <p>Ti sono stati consegnati due file. <b>Non rinominarli e non estrarre lo zip.</b></p>
+  <div class="grid2">
+    <div class="file"><div class="ic">MCPB</div><div><div class="nm">capcut-mcp.mcpb</div><span>L'<b>estensione</b> (server MCP): dà a Claude gli strumenti per leggere e modificare le bozze di CapCut sul tuo Mac. ~4 MB.</span></div></div>
+    <div class="file"><div class="ic zip">ZIP</div><div><div class="nm">capcut-reels-skill.zip</div><span>La <b>skill</b>: le istruzioni che insegnano a Claude il metodo di lavoro (premontaggio, prese, sottotitoli, grafiche).</span></div></div>
+  </div>
+  <div class="box warn">
+    <div class="t">Hai scaricato i file con Safari?</div>
+    <p>Safari a volte estrae gli zip da solo: se al posto di <code>capcut-reels-skill.zip</code> trovi una cartella, apri Safari → <b>Impostazioni</b> → <b>Generali</b>, togli la spunta a <b>Apri i documenti “sicuri” dopo il download</b> e scarica di nuovo lo zip.</p>
+  </div>
+  <div class="box">
+    <div class="t">Estensione e skill: che differenza c'è?</div>
+    <p><b>L'estensione</b> sono le “mani”: senza di lei Claude non può toccare i file di CapCut. <b>La skill</b> è il “mestiere”: senza di lei Claude ha gli strumenti ma lavora in modo meno preciso (per esempio potrebbe scegliere lui la presa migliore invece di tenerle tutte). Installa sempre entrambe.</p>
+  </div>
+
+  <h3>Cosa fa (e cosa non fa)</h3>
+  <div class="grid2">
+    <div class="can"><div class="t">SA FARE</div><ul>
+      <li>Premontaggio dei girati parlati: toglie silenzi e frasi interrotte, tiene tutte le prese complete</li>
+      <li>Trascrizione offline sul Mac (Whisper)</li>
+      <li>Aggiungere, spostare, tagliare, dividere clip, immagini, audio e testi</li>
+      <li>Sottotitoli con lo stile di un testo che hai già</li>
+      <li>Copiare transizioni, animazioni ed effetti già usati</li>
+      <li>Inserire grafiche e b-roll generati altrove (es. Higgsfield)</li>
+      <li>Backup automatico a ogni salvataggio</li></ul></div>
+    <div class="cant"><div class="t">NON FA</div><ul>
+      <li>Non esporta il video finale: l'esportazione si fa in CapCut</li>
+      <li>Non inventa effetti o transizioni di CapCut: può solo copiare quelli già usati in una bozza</li>
+      <li>Non lavora mentre CapCut è aperto</li>
+      <li>Non funziona dal sito web claude.ai né dal telefono: serve l'app desktop sul Mac dove ci sono le bozze</li></ul></div>
+  </div>
+</section>
+
+<!-- ======================= 1 ======================= -->
+<section class="chapter" id="c1">
+  <div class="chapter-head"><div class="n">1</div><h2>Installare Claude Desktop e collegare l'account</h2></div>
+  <p class="intro">Claude Desktop è l'app di Claude per il computer. È l'unica versione che può usare le estensioni installate sul Mac, quindi è indispensabile.</p>
+
+  <h3>1.1 Scaricare l'app</h3>
+  <ol class="steps">
+    <li><b>Apri il browser e vai su <a href="https://claude.ai/download">claude.ai/download</a></b><span class="d">È la pagina ufficiale. Scarica solo da qui, non da siti di terze parti.</span></li>
+    <li><b>Scegli la versione per macOS</b><span class="d">Viene scaricato un file <code>.dmg</code>, di solito nella cartella <i>Download</i>.</span></li>
+  </ol>
+
+  <h3>1.2 Installare</h3>
+  <ol class="steps">
+    <li><b>Fai doppio clic sul file .dmg scaricato</b><span class="d">Si apre una finestra con l'icona di Claude e la cartella Applicazioni.</span></li>
+    <li><b>Trascina l'icona di Claude sulla cartella Applicazioni</b><span class="d">Attendi la fine della copia. Poi puoi chiudere la finestra ed espellere il disco “Claude” dalla barra laterale del Finder.</span></li>
+    <li><b>Apri Claude</b><span class="d">Da Applicazioni, oppure con Spotlight: premi <b>⌘ Spazio</b>, scrivi <i>Claude</i> e premi Invio. Se macOS chiede «“Claude” è un'app scaricata da Internet. Vuoi aprirla?», clicca <b>Apri</b>.</span></li>
+    <li><b>Tienila nel Dock (consigliato)</b><span class="d">Con Claude aperto: clic destro sulla sua icona nel Dock → <b>Opzioni</b> → <b>Mantieni nel Dock</b>.</span></li>
+  </ol>
+
+  <h3>1.3 Accedere con il tuo account</h3>
+  <ol class="steps">
+    <li><b>Alla prima apertura scegli come accedere</b><span class="d">Puoi usare <b>Continua con Google</b> oppure inserire il tuo <b>indirizzo email</b>.</span></li>
+    <li><b>Se hai scelto l'email, controlla la posta</b><span class="d">Ti arriva un codice o un link di accesso: inseriscilo o cliccalo. Se l'account non esiste ancora, viene creato in questo passaggio.</span></li>
+    <li><b>Completa i dati richiesti</b><span class="d">Nome, conferma dell'età e accettazione dei termini di servizio.</span></li>
+    <li><b>Scegli il piano</b><span class="d">Puoi partire con il piano gratuito e passare a un piano a pagamento in seguito da <b>Impostazioni</b> <span class="en">(Settings)</span> → <b>Abbonamento</b> <span class="en">(Billing)</span>.</span></li>
+  </ol>
+  <div class="box tip">
+    <div class="t">Quale piano?</div>
+    <p>Il montaggio con Claude usa molti messaggi: ogni bozza letta, ogni trascrizione e soprattutto ogni fotogramma mostrato a Claude consuma il limite di utilizzo. Con il piano gratuito il limite si raggiunge in fretta. Per lavorare su più video al giorno è consigliato almeno <b>Pro</b>; per uso intensivo <b>Max</b>. Verifica prezzi e limiti aggiornati sulla pagina dei piani di Claude.</p>
+  </div>
+  <div class="box">
+    <div class="t">Usare lo stesso account su più computer</div>
+    <p>Puoi accedere con lo stesso account su più computer, Mac o Windows. La <b>skill</b> si carica una volta sola e la ritrovi ovunque; l'<b>estensione</b> invece va installata su <b>ogni computer</b> dove ci sono le bozze di CapCut, perché lavora sui file locali.</p>
+  </div>
+</section>
+
+<!-- ======================= 2 ======================= -->
+<section class="chapter" id="c2">
+  <div class="chapter-head"><div class="n">2</div><h2>Collegare l'estensione CapCut (MCP)</h2></div>
+  <p class="intro">L'estensione “CapCut – montaggio bozze” è il server MCP che collega Claude alle bozze di CapCut. Si installa con un doppio clic.</p>
+
+  <h3>2.1 Installare il file .mcpb</h3>
+  <ol class="steps">
+    <li><b>Con Claude Desktop aperto, fai doppio clic su <code>capcut-mcp.mcpb</code></b><span class="d">Claude Desktop si porta in primo piano e mostra la scheda dell'estensione <b>“CapCut – montaggio bozze”</b> con descrizione ed elenco degli strumenti.</span></li>
+    <li><b>Clicca su Installa <i>(Install)</i></b><span class="d">Se compare un avviso sull'origine dell'estensione, conferma: è normale per le estensioni che non vengono dalla directory ufficiale.</span></li>
+    <li><b>Compila le impostazioni (puoi lasciarle vuote) e verifica che sia Attiva <i>(Enabled)</i></b><span class="d">Vedi la tabella qui sotto. Nella maggior parte dei casi basta confermare senza scrivere nulla.</span></li>
+  </ol>
+  <div class="box">
+    <div class="t">Se il doppio clic non funziona</div>
+    <p>Fai clic destro sul file → <b>Apri con</b> → <b>Claude</b>. Oppure in Claude apri <b>Impostazioni</b> <span class="en">(Settings, <b>⌘,</b>)</span> → <b>Estensioni</b> <span class="en">(Extensions)</span> → <b>Impostazioni avanzate</b> <span class="en">(Advanced settings)</span> → <b>Installa estensione</b> <span class="en">(Install Extension)</span> e scegli il file <code>capcut-mcp.mcpb</code>.</p>
+  </div>
+
+  <h3>2.2 Le impostazioni dell'estensione</h3>
+  <table class="wide">
+    <tr><th>Campo</th><th>Cosa mettere</th></tr>
+    <tr><td>Cartella delle bozze CapCut</td><td><b>Lascia vuoto.</b> Viene trovata da sola. Compilala solo se in CapCut hai spostato le bozze in un'altra cartella o su un altro disco (in CapCut la trovi nelle impostazioni, alla voce sulla posizione delle bozze).</td></tr>
+    <tr><td>Cartella per i file scaricati</td><td>Dove salvare video e immagini scaricati (es. da Higgsfield). Se vuoto: <code>Filmati/CapCut MCP</code> nella tua cartella Inizio.</td></tr>
+    <tr><td>Bozza modello per i testi</td><td>Il <b>nome di una bozza</b> che contiene un testo nello stile che vuoi per i sottotitoli (font, bordo, animazione). Se vuoto, Claude usa il primo testo che trova. <b>Consigliato</b>: crea una bozza “Template sottotitoli” con un testo già stilizzato e scrivi qui il suo nome.</td></tr>
+    <tr><td>Modello di trascrizione</td><td><code>large-v3-turbo-q5_0</code> (consigliato). Sui Mac più vecchi o lenti: <code>medium-q5_0</code> o <code>small</code> (più veloci, meno precisi).</td></tr>
+    <tr><td>Lingua del parlato</td><td><code>it</code> per l'italiano. Altri esempi: <code>en</code>, <code>es</code>, <code>fr</code>.</td></tr>
+  </table>
+  <p class="en" style="font-size:8.6pt">Per cambiarle in seguito: <b>Impostazioni → Estensioni → CapCut – montaggio bozze</b>, poi apri una <b>nuova chat</b>.</p>
+
+  <h3>2.3 Verificare che sia collegata</h3>
+  <ol class="steps">
+    <li><b>Apri una nuova chat e controlla il menu degli strumenti</b><span class="d">Sotto la casella di testo c'è il pulsante degli strumenti/connettori: l'estensione <b>CapCut – montaggio bozze</b> deve comparire nell'elenco ed essere attiva.</span></li>
+    <li><b>Fai una prova</b><span class="d">Scrivi: <i>«Elenca le mie bozze di CapCut.»</i> Se Claude risponde con l'elenco dei tuoi progetti, l'estensione funziona. Se macOS chiede il permesso di accedere a una cartella, clicca <b>Consenti</b> (vedi capitolo 4).</span></li>
+  </ol>
+</section>
+
+<!-- ======================= 3 ======================= -->
+<section class="chapter" id="c3">
+  <div class="chapter-head"><div class="n">3</div><h2>Importare la skill capcut-reels</h2></div>
+  <p class="intro">La skill è un pacchetto di istruzioni: insegna a Claude come fare un premontaggio, come riconoscere le frasi dettate da dietro la camera, come mettere sottotitoli e grafiche. Si attiva da sola quando parli di CapCut, bozze, premontaggio o reel.</p>
+
+  <h3>3.1 Caricare lo zip</h3>
+  <ol class="steps">
+    <li><b>Apri <span>Personalizza</span> <span class="en">(Customize)</span> → Skills</b><span class="d">Lo trovi nel menu laterale di Claude Desktop (o tramite le Impostazioni).</span></li>
+    <li><b>Clicca su Carica skill <i>(Upload skill)</i></b><span class="d">Di solito è un pulsante “+” o “Carica”.</span></li>
+    <li><b>Scegli il file <code>capcut-reels-skill.zip</code></b><span class="d"><b>Non estrarlo</b>: va caricato lo zip così com'è.</span></li>
+    <li><b>Attiva l'interruttore accanto a <code>capcut-reels</code></b><span class="d">La skill compare nell'elenco con la sua descrizione.</span></li>
+  </ol>
+  <div class="box warn">
+    <div class="t">Non vedi la sezione Skills?</div>
+    <p>Le skill richiedono che sia attiva l'esecuzione del codice. Vai in <b>Impostazioni</b> <span class="en">(Settings)</span> → <b>Funzionalità</b> <span class="en">(Capabilities)</span> e attiva <b>Esecuzione di codice e creazione di file</b> <span class="en"><i>(Code execution and file creation)</i></span>, poi riprova. Se ancora non compare, aggiorna Claude Desktop all'ultima versione (menu <b>Claude</b> → <b>Verifica aggiornamenti</b>).</p>
+  </div>
+
+  <h3>3.2 Verificare che la skill venga usata</h3>
+  <p>Non serve richiamarla a mano: quando scrivi per esempio <i>«fai il premontaggio della bozza…»</i>, Claude la carica da solo (nella chat vedi un passaggio tipo “lettura skill capcut-reels”). Se vuoi essere sicuro, aggiungi al prompt: <i>«usa la skill capcut-reels»</i>.</p>
+
+  <h3>3.3 Facoltativo: collegare Higgsfield</h3>
+  <p>Se vuoi che Claude generi grafiche animate, motion o b-roll e li metta direttamente nella bozza, collega anche il connettore di Higgsfield da <b>Impostazioni → Connettori</b> <span class="en">(Connectors)</span> e accedi con il tuo account Higgsfield. Senza connettore puoi comunque incollare in chat il link di un file generato: Claude lo scarica e lo inserisce.</p>
+
+  <div class="box">
+    <div class="t">Riepilogo di cosa deve risultare attivo</div>
+    <table>
+      <tr><th>Elemento</th><th>Dove controllarlo</th><th>Stato</th></tr>
+      <tr><td>Estensione CapCut – montaggio bozze</td><td>Impostazioni → Estensioni</td><td>Attiva</td></tr>
+      <tr><td>Skill capcut-reels</td><td>Personalizza → Skills</td><td>Attiva</td></tr>
+      <tr><td>Esecuzione di codice</td><td>Impostazioni → Funzionalità</td><td>Attiva</td></tr>
+      <tr><td>Higgsfield (facoltativo)</td><td>Impostazioni → Connettori</td><td>Collegato</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ======================= 4 ======================= -->
+<section class="chapter" id="c4">
+  <div class="chapter-head"><div class="n">4</div><h2>Primo avvio: Homebrew e il setup</h2></div>
+  <p class="intro">La trascrizione funziona offline sul tuo Mac, quindi servono due componenti: <b>ffmpeg</b> (il programma che legge video e audio, nella versione completa con Whisper) e il <b>modello Whisper</b> (~600 MB). Sul Mac ffmpeg si installa con <b>Homebrew</b>, il programma di installazione più usato su Mac: lo installi tu una volta sola, poi Claude fa il resto.</p>
+
+  <h3>4.1 Installare Homebrew (una volta sola)</h3>
+  <ol class="steps">
+    <li><b>Apri il Terminale</b><span class="d">Premi <b>⌘ Spazio</b>, scrivi <i>Terminale</i> e premi Invio. Si apre una finestra in cui si scrivono comandi.</span></li>
+    <li><b>Copia il comando di installazione da <a href="https://brew.sh">brew.sh</a></b><span class="d">È il sito ufficiale di Homebrew: sotto “Install Homebrew” c'è il comando con il pulsante per copiarlo. Al momento è questo:</span>
+      <pre class="cmd">/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</pre></li>
+    <li><b>Incolla il comando nel Terminale (⌘V) e premi Invio</b><span class="d">Quando chiede <i>Password</i>, scrivi la password del Mac e premi Invio: <b>mentre scrivi non compare nulla</b>, è normale. Quando chiede <i>Press RETURN/ENTER to continue</i>, premi Invio.</span></li>
+    <li><b>Attendi</b><span class="d">Richiede 5–15 minuti. Può scaricare anche gli “Strumenti da riga di comando di Xcode” (Command Line Tools): è normale.</span></li>
+    <li><b>Alla fine compare “Installation successful!”</b><span class="d">Le istruzioni “Next steps” che seguono non servono per CapCut: puoi chiudere il Terminale.</span></li>
+    <li><b>Esci da Claude con ⌘Q e riaprilo</b><span class="d">Così l'estensione vede Homebrew.</span></li>
+  </ol>
+
+  <h3>4.2 Il setup in Claude</h3>
+  <ol class="steps">
+    <li><b>Apri una nuova chat e scrivi:</b>
+      <div class="prompt"><div class="q">Esegui capcut_setup con install true.</div></div></li>
+    <li><b>Autorizza lo strumento</b><span class="d">Claude Desktop ti chiede il permesso di usare <code>capcut_setup</code>: clicca <b>Consenti</b> <i>(Allow)</i>.</span></li>
+    <li><b>Attendi</b><span class="d">Il setup gira in background: installa <b>ffmpeg-full</b> con Homebrew (circa 1–2 GB) e scarica il modello in <code>~/Library/Application Support/capcut-mcp/models</code>. Richiede 10–30 minuti, a seconda della connessione.</span></li>
+    <li><b>Chiedi a che punto è</b>
+      <div class="prompt"><div class="q">A che punto è il setup?</div></div></li>
+    <li><b>Verifica che sia tutto pronto</b>
+      <div class="prompt"><div class="q">Esegui capcut_setup senza installare e dimmi se è tutto pronto.</div><div class="note">Deve risultare <b>pronto</b>: ffmpeg, filtro whisper, modello e cartella delle bozze trovati.</div></div></li>
+  </ol>
+  <div class="box warn">
+    <div class="t">Se qualcosa va storto</div>
+    <ul>
+      <li><b>“Homebrew non è installato”</b>: ripeti il punto 4.1. Se l'hai appena installato, esci da Claude con ⌘Q, riaprilo e riprova.</li>
+      <li><b>“Mac con processore Intel”</b> o <b>“serve macOS 15 Sequoia”</b>: su quel Mac l'installazione automatica non è disponibile. Se il Mac ha il chip Apple, aggiorna macOS da <b>Impostazioni di Sistema → Generali → Aggiornamento software</b>.</li>
+      <li><b>“ffmpeg installato ma non trovato”</b>: esci da Claude con ⌘Q, riaprilo e ripeti il controllo.</li>
+      <li><b>Il setup si ferma con un errore di Homebrew</b>: puoi installare ffmpeg a mano nel Terminale con <code>brew install ffmpeg-full</code>, poi ripeti il controllo in Claude.</li>
+    </ul>
+  </div>
+
+  <h3>4.3 I permessi di macOS</h3>
+  <p>La prima volta che Claude apre cartelle come <b>Scrivania</b>, <b>Documenti</b> o <b>Download</b>, macOS chiede: «“Claude” vorrebbe accedere ai file nella cartella …». Clicca <b>Consenti</b>: senza permesso Claude non vede i tuoi video. Se hai cliccato “Non consentire” per sbaglio: <b>Impostazioni di Sistema → Privacy e sicurezza → File e cartelle → Claude</b> e attiva la cartella.</p>
+
+  <h3>4.4 I permessi degli strumenti</h3>
+  <p>Come per <code>capcut_setup</code>, ogni volta che Claude usa uno strumento nuovo Claude Desktop chiede il permesso. Puoi scegliere <b>Consenti una volta</b> o <b>Consenti sempre</b>.</p>
+  <ul>
+    <li><b>Consenti sempre</b> va bene per gli strumenti di sola lettura (elenco bozze, lettura timeline, fotogrammi, trascrizione) e per quelli di modifica in memoria.</li>
+    <li>Per <code>capcut_save</code>, <code>capcut_restore_backup</code>, <code>capcut_ffmpeg</code> e <code>capcut_raw_patch</code> puoi preferire <b>Consenti una volta</b>: così vedi ogni volta quando Claude scrive sul disco.</li>
+  </ul>
+</section>
+
+<!-- ======================= 5 ======================= -->
+<section class="chapter" id="c5">
+  <div class="chapter-head"><div class="n">5</div><h2>Come si usa</h2></div>
+  <p class="intro">Si lavora parlando con Claude in chat, in italiano normale. Claude legge la bozza, fa le modifiche in memoria, ti mostra un riepilogo e salva solo quando CapCut è chiuso.</p>
+
+  <h3>5.1 Il flusso di lavoro</h3>
+  <div class="flow">
+    <div class="st"><div class="k">PASSO 1</div><b>Prepara in CapCut</b><span>Crea la bozza e importa il girato</span></div><div class="ar">→</div>
+    <div class="st"><div class="k">PASSO 2</div><b>Chiedi a Claude</b><span>Indica la bozza e cosa vuoi ottenere</span></div><div class="ar">→</div>
+    <div class="st"><div class="k">PASSO 3</div><b>Controlla il riepilogo</b><span>Le modifiche sono ancora solo in memoria</span></div><div class="ar">→</div>
+    <div class="st hl"><div class="k">PASSO 4</div><b>Esci da CapCut (⌘Q) e salva</b><span>Backup automatico prima di scrivere</span></div><div class="ar">→</div>
+    <div class="st"><div class="k">PASSO 5</div><b>Riapri ed esporta</b><span>Controlla in CapCut, rifinisci, esporta</span></div>
+  </div>
+
+  <h3>5.2 Concetti da sapere</h3>
+  <table>
+    <tr><td>Bozza</td><td>Un progetto di CapCut. Claude lo riconosce dal <b>nome</b> che vedi nella schermata iniziale di CapCut: scrivilo esattamente uguale, tra virgolette.</td></tr>
+    <tr><td>Modifiche in memoria</td><td>Tutto quello che Claude fa (aggiungere, tagliare, spostare…) resta <b>in sospeso</b> finché non chiedi di salvare. Puoi chiedere di annullare in qualsiasi momento.</td></tr>
+    <tr><td>Salvataggio</td><td>Scrive la bozza su disco. Funziona <b>solo con CapCut chiuso</b> (⌘Q, non basta chiudere la finestra). Prima di scrivere fa sempre un <b>backup</b>.</td></tr>
+    <tr><td>Backup</td><td>Una copia della bozza prima di ogni salvataggio (vengono tenute le ultime 25). Si ripristina con una frase: <i>«ripristina l'ultimo backup della bozza…»</i>.</td></tr>
+    <tr><td>Traccia principale</td><td>La prima traccia video, quella del girato. Il premontaggio lavora solo su questa.</td></tr>
+    <tr><td>Presa</td><td>Una ripetizione completa di una frase. Di default <b>vengono tenute tutte</b>: scegli tu quale usare.</td></tr>
+    <tr><td>Tempi</td><td>In secondi (es. “al secondo 12”) o minuti:secondi (es. “a 1:05”).</td></tr>
+  </table>
+
+  <h3>5.3 Cosa succede durante un premontaggio</h3>
+  <ol class="steps">
+    <li><b>Claude legge la bozza</b><span class="d">e trova i file del girato sulla traccia principale.</span></li>
+    <li><b>Trascrive ogni file</b><span class="d">offline: ottiene i “blocchi” di parlato con inizio, fine, volume e testo. Servono alcuni secondi per frase: su un girato lungo può volerci qualche minuto. Se Claude dice che manca molto, fai altro e poi scrivigli <i>«continua»</i> o <i>«a che punto sei?»</i>.</span></li>
+    <li><b>Decide cosa tenere</b><span class="d">Tiene tutte le prese complete; toglie silenzi, frasi lasciate a metà, rumori, commenti fuori copione e le frasi dettate da dietro la camera (che verifica guardando i fotogrammi).</span></li>
+    <li><b>Ricostruisce la traccia principale</b><span class="d">Una presa dopo l'altra, in ordine cronologico, ognuna come clip separato.</span></li>
+    <li><b>Controlla, ti chiede di uscire da CapCut e salva</b></li>
+    <li><b>Ti fa un riepilogo</b><span class="d">Durata prima/dopo, tabella con tempo, frase e numero di prese, prese dubbie e frasi dettate tolte.</span></li>
+  </ol>
+</section>
+
+<!-- ======================= 6 ======================= -->
+<section class="chapter" id="c6">
+  <div class="chapter-head"><div class="n">6</div><h2>I prompt da dare</h2></div>
+  <p class="intro">Frasi pronte da copiare. Sostituisci i nomi tra virgolette con quelli delle tue bozze e dei tuoi file.</p>
+  <div class="box tip">
+    <div class="t">Come scrivere un buon prompt</div>
+    <ul>
+      <li><b>Nomina sempre la bozza</b>, tra virgolette, esattamente come in CapCut.</li>
+      <li><b>Dì cosa tenere e cosa togliere</b>, non solo “sistemalo”.</li>
+      <li><b>Chiedi prima un piano</b> per le modifiche grandi: <i>«prima dimmi cosa intendi fare, non salvare»</i>.</li>
+      <li><b>Una cosa alla volta</b>: premontaggio, poi sottotitoli, poi grafiche. Più facile da controllare.</li>
+      <li><b>Per le prove usa una copia</b> della bozza.</li>
+      <li><b>Una chat per progetto</b>: le chat lunghe diventano lente e consumano il limite più in fretta.</li>
+    </ul>
+  </div>
+
+  <h3>Primi passi</h3>
+  <div class="prompt"><div class="q">Elenca le mie bozze di CapCut.</div><div class="note">Mostra le bozze dalla più recente, con durata e se sono aperte in CapCut.</div></div>
+  <div class="prompt"><div class="q">Leggi la bozza "Reel 12" e dimmi cosa c'è sulla timeline: tracce, clip, testi e durata.</div></div>
+  <div class="prompt"><div class="q">Mostrami il fotogramma della bozza "Reel 12" al secondo 8.</div><div class="note">Claude “guarda” il video. Utile per scegliere dove mettere testi e grafiche senza coprire il viso.</div></div>
+  <div class="prompt"><div class="q">Trova i video nella cartella Filmati e dimmi durata e formato di ognuno.</div></div>
+
+  <h3>Premontaggio <span style="font-size:7.5pt;color:var(--accent);background:var(--accent-soft);padding:0.5mm 2mm;border-radius:1mm;letter-spacing:.08em;vertical-align:middle">IL PIÙ USATO</span></h3>
+  <div class="prompt"><div class="q">Fai il premontaggio della bozza "Intervista Marco": togli silenzi, rumori e frasi lasciate a metà, ma tieni tutte le prese complete di ogni frase. Prima di salvare fammi un riepilogo.</div></div>
+  <div class="prompt"><div class="q">Nel girato della bozza "Intervista Marco" c'è una persona dietro la camera che detta le frasi e Marco le ripete. Togli le frasi dettate e tieni solo quello che dice Marco.</div><div class="note">Claude riconosce le frasi dettate dal volume più basso e lo conferma guardando i fotogrammi (chi ascolta ha la bocca chiusa).</div></div>
+  <div class="prompt"><div class="q">Duplica la bozza "Intervista Marco" chiamandola "Intervista Marco – PM" e fai il premontaggio sulla copia.</div><div class="note">Lavorare su una copia lascia intatto l'originale. Serve CapCut chiuso.</div></div>
+  <div class="prompt"><div class="q">Adesso tieni solo la presa migliore di ogni frase (la più fluida, senza errori). Mostrami la tabella delle scelte prima di salvare.</div><div class="note">Di default Claude tiene tutte le prese: chiedilo esplicitamente se vuoi che scelga lui.</div></div>
+  <div class="prompt"><div class="q">Dopo il premontaggio riallinea musica e titoli alla nuova durata del video.</div><div class="note">Il premontaggio non sposta le altre tracce: vanno riallineate dopo.</div></div>
+
+  <h3>Sottotitoli e testi</h3>
+  <div class="prompt"><div class="q">Aggiungi i sottotitoli alla bozza "Intervista Marco – PM", una frase alla volta, sincronizzati con il parlato, con lo stile del testo della bozza "Template sottotitoli".</div></div>
+  <div class="prompt"><div class="q">Nella bozza "Reel 12" aggiungi il titolo "3 errori da evitare" dal secondo 0 al secondo 3, in alto.</div></div>
+  <div class="prompt"><div class="q">Nel sottotitolo al secondo 14 della bozza "Reel 12" correggi "marchetting" in "marketing".</div></div>
+
+  <h3>Transizioni, animazioni, zoom</h3>
+  <div class="prompt"><div class="q">Quali transizioni, animazioni ed effetti ho già usato nelle mie bozze?</div><div class="note">Claude può copiare solo quello che hai già usato almeno una volta. Se manca, applicalo a mano su un clip qualsiasi e poi chiedi di copiarlo.</div></div>
+  <div class="prompt"><div class="q">Applica la transizione che ho usato nella bozza "Reel 10" tra tutti i clip della bozza "Reel 12".</div></div>
+  <div class="prompt"><div class="q">Fai uno zoom punch-in al 115% su un clip sì e uno no della traccia principale della bozza "Reel 12".</div></div>
+
+  <h3>Grafiche, b-roll e musica</h3>
+  <div class="prompt"><div class="q">Genera con Higgsfield un'animazione di 5 secondi di un grafico che sale, formato verticale 9:16, e mettila nella bozza "Reel 12" al secondo 12 sopra il video, senza audio.</div><div class="note">Richiede il connettore Higgsfield. Se l'animazione non ha sfondo trasparente coprirà chi parla: Claude te lo segnala.</div></div>
+  <div class="prompt"><div class="q">Scarica questo video e mettilo nella bozza "Reel 12" dal secondo 20 al 25 come b-roll a tutto schermo: [incolla qui il link]</div></div>
+  <div class="prompt"><div class="q">Aggiungi la musica "sottofondo.mp3" dalla cartella Musica alla bozza "Reel 12", per tutta la durata, volume al 20%.</div></div>
+
+  <h3>Controllo, salvataggio e annullamento</h3>
+  <div class="prompt"><div class="q">Controlla la bozza "Reel 12" e dimmi se ci sono problemi prima di salvare.</div><div class="note">Verifica sovrapposizioni, file mancanti ed errori nella struttura.</div></div>
+  <div class="prompt"><div class="q">Sono uscito da CapCut con ⌘Q: salva la bozza "Reel 12".</div></div>
+  <div class="prompt"><div class="q">Annulla tutte le modifiche non salvate della bozza "Reel 12".</div></div>
+  <div class="prompt"><div class="q">Mostrami i backup della bozza "Reel 12" e ripristina quello di prima del premontaggio.</div><div class="note">Anche il ripristino fa prima un backup dello stato attuale: non perdi nulla.</div></div>
+</section>
+
+<!-- ======================= 7 ======================= -->
+<section class="chapter" id="c7">
+  <div class="chapter-head"><div class="n">7</div><h2>Le accortezze</h2></div>
+  <p class="intro">Poche regole che evitano il 90% dei problemi.</p>
+  <div class="rules">
+    <div class="rule"><div class="i r">!</div><div><b>Esci da CapCut prima di salvare, con ⌘Q</b><span>Sul Mac chiudere la finestra non basta: CapCut resta aperto (lo vedi dal puntino sotto la sua icona nel Dock). Usa ⌘Q oppure il menu <b>CapCut → Esci da CapCut</b>. CapCut salva in automatico a intervalli: se è aperto mentre Claude salva, sovrascrive le modifiche. Claude rifiuta di salvare se CapCut è aperto: non chiedergli di “forzare” a meno che tu sia sicuro che sia chiuso.</span></div></div>
+    <div class="rule"><div class="i r">!</div><div><b>Non spostare né rinominare i file del girato</b><span>La bozza punta ai file originali. Se li sposti, CapCut li mostra come mancanti. Tieni il girato in una cartella fissa prima di iniziare: meglio dentro <b>Filmati</b> o in una cartella dedicata che sulla Scrivania o in Download, perché macOS protegge quelle cartelle e CapCut potrebbe chiederti di ricollegare i file.</span></div></div>
+    <div class="rule"><div class="i a">!</div><div><b>Dopo ogni salvataggio, riapri e controlla</b><span>Il formato delle bozze di CapCut non è documentato. Dopo modifiche grandi apri la bozza e guardala dall'inizio alla fine prima di esportare.</span></div></div>
+    <div class="rule"><div class="i a">!</div><div><b>La prima volta lavora su una copia</b><span>Chiedi a Claude di duplicare la bozza e lavora sulla copia finché non prendi confidenza. La versione per Mac è nuova: vale doppio. In ogni caso i backup permettono di tornare indietro.</span></div></div>
+    <div class="rule"><div class="i a">!</div><div><b>Dopo il premontaggio le altre tracce sono fuori sincrono</b><span>Musica, titoli ed effetti sonori non vengono spostati: chiedi di riallinearli o sistemali in CapCut.</span></div></div>
+    <div class="rule"><div class="i n">i</div><div><b>Le prese le scegli tu</b><span>Claude tiene tutte le prese complete e segnala quelle dubbie. Se vuoi che scelga lui la migliore, chiediglielo esplicitamente.</span></div></div>
+    <div class="rule"><div class="i n">i</div><div><b>Se qualcuno detta da dietro la camera, dillo</b><span>Claude riconosce da solo la maggior parte delle frasi dettate, ma dirglielo nel prompt rende il risultato più affidabile.</span></div></div>
+    <div class="rule"><div class="i n">i</div><div><b>Effetti e transizioni: si copiano, non si inventano</b><span>Applica una volta a mano l'effetto che vuoi in una bozza qualsiasi; poi Claude può copiarlo ovunque.</span></div></div>
+    <div class="rule"><div class="i n">i</div><div><b>Grafiche sopra il video: serve la trasparenza</b><span>Un'animazione con sfondo pieno copre chi parla. Chiedi una versione con sfondo trasparente, oppure con sfondo verde da togliere con il chroma key di CapCut, o usala a tutto schermo.</span></div></div>
+    <div class="rule"><div class="i n">i</div><div><b>Usa una chat nuova per ogni video</b><span>Le chat lunghe rallentano e consumano più in fretta il limite. I fotogrammi mostrati a Claude sono la parte che consuma di più.</span></div></div>
+    <div class="rule"><div class="i g">✓</div><div><b>Privacy</b><span>La trascrizione avviene sul tuo Mac, offline. Però i testi trascritti, i nomi dei file e i fotogrammi che Claude guarda vengono inviati a Claude per l'elaborazione, come qualsiasi messaggio in chat. Non usarlo per materiale che non puoi condividere con un servizio cloud.</span></div></div>
+    <div class="rule"><div class="i g">✓</div><div><b>L'esportazione finale si fa in CapCut</b><span>Claude prepara la bozza; rifinitura, colore ed esportazione restano a te.</span></div></div>
+    <div class="rule"><div class="i g">✓</div><div><b>Dopo un aggiornamento di CapCut, fai una prova</b><span>Un aggiornamento può cambiare il formato delle bozze. Prova prima su una copia; se qualcosa non va, ripristina un backup e segnala il problema.</span></div></div>
+  </div>
+</section>
+
+<!-- ======================= 8 ======================= -->
+<section class="chapter" id="c8">
+  <div class="chapter-head"><div class="n">8</div><h2>Risoluzione dei problemi</h2></div>
+  <p class="intro">Errori comuni e come risolverli. In quasi tutti i casi puoi anche descrivere il problema a Claude: ha gli strumenti per controllare.</p>
+  <table class="wide">
+    <tr><th>Problema</th><th>Soluzione</th></tr>
+    <tr><td>Claude dice di non avere strumenti per CapCut</td><td>Controlla che l'estensione sia attiva in <b>Impostazioni → Estensioni</b>. Apri una <b>nuova chat</b>. Se non basta, esci da Claude con <b>⌘Q</b> e riaprilo.</td></tr>
+    <tr><td>Il file .mcpb non si apre con Claude</td><td>Clic destro sul file → <b>Apri con → Claude</b>, oppure installalo da <b>Impostazioni → Estensioni → Impostazioni avanzate → Installa estensione</b>.</td></tr>
+    <tr><td>L'estensione non si avvia / errore su Node.js</td><td>In <b>Impostazioni → Estensioni → Impostazioni avanzate</b> verifica che sia attivo l'uso di Node.js integrato. In alternativa installa Node.js 18 o successivo da nodejs.org e riavvia Claude.</td></tr>
+    <tr><td>“Non salvo: CapCut è aperto”</td><td>Esci da CapCut con <b>⌘Q</b> (chiudere la finestra non basta). Se il messaggio resta, apri <b>Monitoraggio Attività</b> (⌘ Spazio, scrivi <i>Monitoraggio Attività</i>), cerca <i>CapCut</i>, selezionalo, clicca ✕ e poi <b>Esci</b> (o <b>Uscita forzata</b>).</td></tr>
+    <tr><td>Ho riaperto CapCut e le modifiche non ci sono</td><td>Probabilmente CapCut era aperto durante il salvataggio e ha sovrascritto. Esci da CapCut e chiedi a Claude di rifare e salvare. Se la bozza è rovinata, ripristina un backup.</td></tr>
+    <tr><td>Claude non trova le mie bozze</td><td>Le bozze sono in una cartella diversa da quella standard (<code>~/Movies/CapCut/User Data/Projects/com.lveditor.draft</code>). Scrivi il percorso giusto nel campo <b>Cartella delle bozze CapCut</b> delle impostazioni dell'estensione (lo trovi nelle impostazioni di CapCut).</td></tr>
+    <tr><td>“Homebrew non è installato”</td><td>Installalo come nel capitolo 4.1, poi esci da Claude con ⌘Q, riaprilo e ripeti il setup.</td></tr>
+    <tr><td>“ffmpeg non trovato” o “manca il filtro whisper”</td><td>Chiedi: <i>«esegui capcut_setup con install true»</i>. Se dice “installato ma non trovato”, esci da Claude con ⌘Q e riaprilo. In alternativa, nel Terminale: <code>brew install ffmpeg-full</code>.</td></tr>
+    <tr><td>“Mac con processore Intel” o “serve macOS 15”</td><td>L'installazione automatica funziona solo sui Mac con chip Apple aggiornati almeno a macOS 15 Sequoia. Aggiorna macOS da <b>Impostazioni di Sistema → Generali → Aggiornamento software</b>; sui Mac Intel usa un computer diverso.</td></tr>
+    <tr><td>Claude non vede i video in Scrivania, Documenti o Download</td><td>macOS ha bloccato l'accesso. Vai in <b>Impostazioni di Sistema → Privacy e sicurezza → File e cartelle → Claude</b> e attiva la cartella, poi riprova in una nuova chat.</td></tr>
+    <tr><td>La trascrizione è molto lenta</td><td>È normale sui girati lunghi. Sui Mac meno potenti imposta il modello <code>medium-q5_0</code> o <code>small</code> nelle impostazioni dell'estensione.</td></tr>
+    <tr><td>La trascrizione sbaglia la lingua</td><td>Controlla il campo <b>Lingua del parlato</b> (es. <code>it</code>).</td></tr>
+    <tr><td>In CapCut compaiono “media mancanti”</td><td>I file originali sono stati spostati o rinominati: rimettili dov'erano oppure ricollegali da CapCut. Se sono su Scrivania, Documenti o Download, spostali in <b>Filmati</b> e ricollegali.</td></tr>
+    <tr><td>I sottotitoli hanno lo stile sbagliato</td><td>Imposta la <b>Bozza modello per i testi</b> con il nome di una bozza che contiene un testo nello stile giusto.</td></tr>
+    <tr><td>La skill non sembra attivarsi</td><td>Controlla che <code>capcut-reels</code> sia attiva in <b>Personalizza → Skills</b>. Aggiungi al prompt <i>«usa la skill capcut-reels»</i>.</td></tr>
+    <tr><td>Hai raggiunto il limite di utilizzo</td><td>Attendi il ripristino indicato da Claude o passa a un piano superiore. Per consumare meno: chat nuove per ogni video, meno fotogrammi.</td></tr>
+    <tr><td>La bozza non si apre più in CapCut</td><td>Chiedi: <i>«mostrami i backup della bozza "…" e ripristina l'ultimo»</i>. Poi riapri CapCut.</td></tr>
+  </table>
+</section>
+
+<!-- ======================= A ======================= -->
+<section class="chapter" id="cA">
+  <div class="chapter-head"><div class="n">A</div><h2>Appendice</h2></div>
+
+  <h3>A.1 Gli strumenti dell'estensione</h3>
+  <p class="en" style="font-size:8.8pt">Non serve conoscerli: Claude li sceglie da solo. Sono utili per capire cosa sta facendo o per chiedere qualcosa di preciso.</p>
+  <table class="wide">
+    <tr><th>Strumento</th><th>A cosa serve</th></tr>
+    <tr><td><code>capcut_setup</code></td><td>Controlla o installa ffmpeg e il modello Whisper (una volta sola).</td></tr>
+    <tr><td><code>capcut_job_status</code></td><td>Stato dei lavori lunghi (setup, trascrizione, download, ffmpeg).</td></tr>
+    <tr><td><code>capcut_list_drafts</code></td><td>Elenca le bozze con durata e stato (aperta / chiusa).</td></tr>
+    <tr><td><code>capcut_read_timeline</code></td><td>Legge una bozza: formato, fps, tracce, ogni clip e testo.</td></tr>
+    <tr><td><code>capcut_clone_draft</code></td><td>Duplica una bozza (anche svuotata) con un nuovo nome.</td></tr>
+    <tr><td><code>capcut_add_video</code> · <code>_image</code> · <code>_audio</code> · <code>_text</code></td><td>Aggiunge video, immagini, audio e testi in un punto della timeline.</td></tr>
+    <tr><td><code>capcut_add_track</code></td><td>Aggiunge una traccia vuota (video, audio, testo, sticker).</td></tr>
+    <tr><td><code>capcut_move_segment</code> · <code>_trim_</code> · <code>_split_</code> · <code>_delete_</code></td><td>Sposta, accorcia/allunga, divide ed elimina clip.</td></tr>
+    <tr><td><code>capcut_set_props</code></td><td>Posizione, scala, rotazione, opacità, volume, velocità, visibilità.</td></tr>
+    <tr><td><code>capcut_rough_cut</code></td><td>Premontaggio: ricostruisce la traccia principale con le parti da tenere.</td></tr>
+    <tr><td><code>capcut_transcribe</code></td><td>Trascrizione offline a blocchi di parlato.</td></tr>
+    <tr><td><code>capcut_style_library</code> · <code>capcut_apply_style</code></td><td>Elenca e copia transizioni, animazioni ed effetti già usati.</td></tr>
+    <tr><td><code>capcut_validate</code></td><td>Controlla sovrapposizioni, file mancanti, errori.</td></tr>
+    <tr><td><code>capcut_save</code> · <code>capcut_discard</code></td><td>Salva (con backup) o annulla le modifiche non salvate.</td></tr>
+    <tr><td><code>capcut_list_backups</code> · <code>capcut_restore_backup</code></td><td>Elenca e ripristina i backup.</td></tr>
+    <tr><td><code>capcut_list_files</code> · <code>capcut_probe_media</code></td><td>Sfoglia le cartelle del Mac e legge le informazioni dei file.</td></tr>
+    <tr><td><code>capcut_view_frames</code></td><td>Mostra fotogrammi a Claude per “guardare” il video.</td></tr>
+    <tr><td><code>capcut_download</code></td><td>Scarica un file da un link (es. Higgsfield) nella cartella media.</td></tr>
+    <tr><td><code>capcut_ffmpeg</code> · <code>capcut_raw_patch</code></td><td>Avanzati: conversioni con ffmpeg e modifiche dirette alla bozza.</td></tr>
+  </table>
+
+  <h3>A.2 Dove sono i file</h3>
+  <table class="wide">
+    <tr><td>Backup delle bozze</td><td><code>~/Library/Application Support/capcut-mcp/backups/&lt;bozza&gt;/&lt;data-ora&gt;</code> — ultime 25 per bozza</td></tr>
+    <tr><td>Modelli di trascrizione</td><td><code>~/Library/Application Support/capcut-mcp/models</code></td></tr>
+    <tr><td>File scaricati</td><td><code>~/Movies/CapCut MCP</code> — nel Finder è <b>Filmati</b> (o la cartella scelta nelle impostazioni)</td></tr>
+    <tr><td>Bozze di CapCut</td><td><code>~/Movies/CapCut/User Data/Projects/com.lveditor.draft</code> (posizione standard)</td></tr>
+    <tr><td>ffmpeg</td><td><code>/opt/homebrew/opt/ffmpeg-full/bin</code> (installato da Homebrew)</td></tr>
+  </table>
+  <p class="en" style="font-size:8.8pt">Per aprire una di queste cartelle: nel Finder scegli <b>Vai → Vai alla cartella…</b> (<b>⇧⌘G</b>), incolla il percorso e premi Invio. Il simbolo <code>~</code> indica la tua cartella Inizio; <i>Library</i> nel Finder si chiama <i>Libreria</i>.</p>
+
+  <h3>A.3 Aggiornare a una nuova versione</h3>
+  <p>Quando ricevi un nuovo <code>capcut-mcp.mcpb</code>, fai doppio clic: sostituisce la versione installata. Se dovesse comparire due volte, disinstalla la vecchia da <b>Impostazioni → Estensioni</b>. Backup e modello Whisper restano dove sono, non vanno riscaricati. Se ricevi anche un nuovo <code>capcut-reels-skill.zip</code>, elimina la skill vecchia in <b>Personalizza → Skills</b> e carica quella nuova. Per aggiornare ffmpeg (facoltativo), nel Terminale: <code>brew upgrade ffmpeg-full</code>.</p>
+
+  <h3>A.4 Installazione manuale (utenti esperti)</h3>
+  <p>In alternativa al file <code>.mcpb</code>, il server si può registrare a mano. Serve Node.js 18+ e una copia del codice:</p>
+  <ol class="steps">
+    <li><b>Scarica il codice e le dipendenze</b><span class="d"><code>git clone https://github.com/DavideLiuzzi/capcut-mcp</code>, poi nella cartella <code>npm install</code>.</span></li>
+    <li><b>In Claude Desktop</b><span class="d">Apri <b>Impostazioni → Sviluppatore</b> <span class="en">(Developer)</span> → <b>Modifica configurazione</b> e aggiungi in <code>mcpServers</code> la voce <code>"capcut"</code> con <code>"command": "node"</code> e <code>"args"</code> con il percorso assoluto di <code>src/server.js</code>.</span></li>
+    <li><b>In alternativa, in Claude Code</b><span class="d"><code>claude mcp add capcut --scope user -- node "/Users/nome/capcut-mcp/src/server.js"</code></span></li>
+    <li><b>Riavvia</b><span class="d">Esci da Claude con ⌘Q, riaprilo e carica la skill come nel capitolo 3.</span></li>
+  </ol>
+  <div class="box">
+    <div class="t">Note legali</div>
+    <p style="font-size:8.3pt">capcut-mcp è software libero (licenza MIT) di James Aldrin Boncales e collaboratori, fornito “così com'è”, senza garanzie. Non è affiliato a CapCut né a ByteDance. Il formato delle bozze di CapCut è proprietario e non documentato: conserva sempre i backup e una copia dei progetti importanti.</p>
+  </div>
+</section>
+
+</body>
+</html>

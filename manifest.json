@@ -2,9 +2,9 @@
   "manifest_version": "0.3",
   "name": "capcut-mcp",
   "display_name": "CapCut – montaggio bozze",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Claude legge e monta le bozze di CapCut desktop: premontaggio automatico, trascrizione offline, clip, testi, transizioni, file da Higgsfield.",
-  "long_description": "Collega Claude alle bozze di **CapCut desktop** sul tuo PC.\n\n- **Premontaggio**: trascrive il girato con Whisper (offline, sul PC), riconosce silenzi e frasi interrotte e ricostruisce la traccia principale tenendo tutte le prese complete.\n- **Montaggio**: aggiunge video, immagini, audio e testi; sposta, taglia, divide; copia transizioni e animazioni da clip che le hanno già.\n- **Media**: scarica i file generati (es. con Higgsfield), mostra fotogrammi a Claude, converte con ffmpeg.\n- **Sicurezza**: non salva mai con CapCut aperto, fa un backup a ogni salvataggio e permette di tornare indietro.\n\nLa prima volta chiedi a Claude di eseguire `capcut_setup`: installa ffmpeg e scarica il modello Whisper (circa 600 MB).",
+  "long_description": "Collega Claude alle bozze di **CapCut desktop** sul tuo computer (Windows o Mac con chip Apple).\n\n- **Premontaggio**: trascrive il girato con Whisper (offline, sul computer), riconosce silenzi e frasi interrotte e ricostruisce la traccia principale tenendo tutte le prese complete.\n- **Montaggio**: aggiunge video, immagini, audio e testi; sposta, taglia, divide; copia transizioni e animazioni da clip che le hanno già.\n- **Media**: scarica i file generati (es. con Higgsfield), mostra fotogrammi a Claude, converte con ffmpeg.\n- **Sicurezza**: non salva mai con CapCut aperto, fa un backup a ogni salvataggio e permette di tornare indietro.\n\nLa prima volta chiedi a Claude di eseguire `capcut_setup`: installa ffmpeg (winget su Windows, Homebrew su Mac) e scarica il modello Whisper (circa 600 MB).",
   "author": {
     "name": "James Aldrin Boncales e collaboratori",
     "url": "https://jmsldrn.com"
@@ -37,7 +37,8 @@
   },
   "compatibility": {
     "platforms": [
-      "win32"
+      "win32",
+      "darwin"
     ],
     "runtimes": {
       "node": ">=18.0.0"
@@ -53,7 +54,7 @@
     "media_dir": {
       "type": "directory",
       "title": "Cartella per i file scaricati (facoltativo)",
-      "description": "Dove salvare video e immagini scaricati, per esempio da Higgsfield. Se vuoto: Video\\CapCut MCP.",
+      "description": "Dove salvare video e immagini scaricati, per esempio da Higgsfield. Se vuoto: Video\\CapCut MCP (Windows) o Filmati/CapCut MCP (Mac).",
       "required": false
     },
     "template_draft": {
@@ -65,7 +66,7 @@
     "whisper_model": {
       "type": "string",
       "title": "Modello di trascrizione",
-      "description": "large-v3-turbo-q5_0 (consigliato), medium-q5_0, small (PC lenti, meno preciso).",
+      "description": "large-v3-turbo-q5_0 (consigliato), medium-q5_0, small (computer lenti, meno preciso).",
       "default": "large-v3-turbo-q5_0",
       "required": false
     },
@@ -88,7 +89,7 @@
     },
     {
       "name": "capcut_list_drafts",
-      "description": "Elenca le bozze di CapCut (dalla piÃ¹ recente), con durata e se sono aperte."
+      "description": "Elenca le bozze di CapCut (dalla più recente), con durata e se sono aperte."
     },
     {
       "name": "capcut_read_timeline",
@@ -136,7 +137,7 @@
     },
     {
       "name": "capcut_set_props",
-      "description": "Imposta posizione / scala / rotazione / opacitÃ  / volume / velocitÃ  / visibilitÃ  di un segmento."
+      "description": "Imposta posizione / scala / rotazione / opacità / volume / velocità / visibilità di un segmento."
     },
     {
       "name": "capcut_rough_cut",
@@ -144,11 +145,11 @@
     },
     {
       "name": "capcut_style_library",
-      "description": "Elenca transizioni, animazioni ed effetti giÃ  usati in tutte le bozze, con il clip da cui copiarli (per capcut_apply_style)."
+      "description": "Elenca transizioni, animazioni ed effetti già usati in tutte le bozze, con il clip da cui copiarli (per capcut_apply_style)."
     },
     {
       "name": "capcut_apply_style",
-      "description": "Copia transizioni / animazioni / effetti da un clip che li ha giÃ  (anche di un'altra bozza) su uno o piÃ¹ segmenti."
+      "description": "Copia transizioni / animazioni / effetti da un clip che li ha già (anche di un'altra bozza) su uno o più segmenti."
     },
     {
       "name": "capcut_raw_patch",
@@ -176,7 +177,7 @@
     },
     {
       "name": "capcut_list_files",
-      "description": "Sfoglia le cartelle del PC per trovare video, audio e immagini."
+      "description": "Sfoglia le cartelle del computer per trovare video, audio e immagini."
     },
     {
       "name": "capcut_probe_media",
@@ -188,7 +189,7 @@
     },
     {
       "name": "capcut_transcribe",
-      "description": "Trascrive un video/audio a blocchi di parlato (Whisper, sul PC, offline)."
+      "description": "Trascrive un video/audio a blocchi di parlato (Whisper, sul computer, offline)."
     },
     {
       "name": "capcut_download",

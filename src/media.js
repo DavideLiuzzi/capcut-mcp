@@ -11,12 +11,15 @@ import { spawn, execFileSync } from 'child_process';
 // ---------- config ----------
 // mcpb leaves "${user_config.x}" literally when an optional field is blank: treat that as unset
 export const cfg = v => (typeof v === 'string' && v.trim() && !/^\$\{.*\}$/.test(v.trim())) ? v.trim() : '';
+const IS_WIN = process.platform === 'win32', IS_MAC = process.platform === 'darwin';
 const LOCALAPPDATA = process.env.LOCALAPPDATA || path.join(os.homedir(), 'AppData', 'Local');
-export const APP_DIR = path.join(process.platform === 'win32' ? LOCALAPPDATA : path.join(os.homedir(), '.local', 'share'), 'capcut-mcp');
+export const APP_DIR = path.join(IS_WIN ? LOCALAPPDATA : IS_MAC ? path.join(os.homedir(), 'Library', 'Application Support') : path.join(os.homedir(), '.local', 'share'), 'capcut-mcp');
 export const MODELS_DIR = path.join(APP_DIR, 'models');
 const TMP_DIR = path.join(APP_DIR, 'tmp');
 const TRANSCRIPTS_DIR = path.join(APP_DIR, 'transcripts');
-export const MEDIA_DIR = cfg(process.env.CAPCUT_MEDIA_DIR) || path.join(os.homedir(), 'Videos', 'CapCut MCP');
+// Mac: ~/Movies ("Filmati" in Finder) — CapCut is happier with media outside Desktop/Documents/Downloads
+const VIDEOS_DIR = path.join(os.homedir(), IS_MAC ? 'Movies' : 'Videos');
+export const MEDIA_DIR = cfg(process.env.CAPCUT_MEDIA_DIR) || path.join(VIDEOS_DIR, 'CapCut MCP');
 export const LANGUAGE = cfg(process.env.CAPCUT_LANGUAGE) || 'it';
 
 const HF = 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/';
@@ -50,7 +53,9 @@ function candidates(name) {
         for (const sub of fs.readdirSync(path.join(pk, d))) out.push(path.join(pk, d, sub, 'bin', exe));
     } catch {}
   } else {
-    out.push(`/opt/homebrew/bin/${exe}`, `/usr/local/bin/${exe}`);
+    // Homebrew's ffmpeg-full is keg-only and is the build with the whisper filter: look there first
+    // (Claude Desktop started from Finder has a minimal PATH, so Homebrew folders are listed explicitly)
+    out.push(`/opt/homebrew/opt/ffmpeg-full/bin/${exe}`, `/usr/local/opt/ffmpeg-full/bin/${exe}`, `/opt/homebrew/bin/${exe}`, `/usr/local/bin/${exe}`);
   }
   for (const dir of (process.env.PATH || '').split(path.delimiter)) if (dir) out.push(path.join(dir, exe));
   return out;
@@ -63,7 +68,7 @@ export function bin(name, refresh = false) {
 }
 export function need(name) {
   const b = bin(name) || bin(name, true);
-  if (!b) throw new Error(`${name} non trovato sul PC. Esegui lo strumento capcut_setup (install:true): installa ffmpeg automaticamente.`);
+  if (!b) throw new Error(`${name} non trovato sul computer. Esegui lo strumento capcut_setup (install:true): installa ffmpeg automaticamente.`);
   return b;
 }
 
@@ -402,31 +407,68 @@ function wingetExe() {
   const p = path.join(LOCALAPPDATA, 'Microsoft', 'WindowsApps', 'winget.exe');
   return exists(p) ? p : 'winget';
 }
+// Mac: ffmpeg comes from Homebrew's "ffmpeg-full" (the regular "ffmpeg" formula has no whisper filter).
+// Homebrew ships it ready-made only for Apple Silicon on macOS 15 Sequoia or later; elsewhere it would
+// compile for hours, so we stop with an explanation instead.
+export function brewExe() {
+  for (const p of ['/opt/homebrew/bin/brew', '/usr/local/bin/brew']) if (exists(p)) return p;
+  return null;
+}
+function appleSilicon() {
+  if (process.arch === 'arm64') return true;
+  try { return execFileSync('/usr/sbin/sysctl', ['-n', 'hw.optional.arm64'], { encoding: 'utf8' }).trim() === '1'; } catch { return false; }
+}
+export function macBlocker() {
+  if (!IS_MAC) return null;
+  if (!appleSilicon()) return 'Mac con processore Intel: Homebrew non fornisce più ffmpeg-full già pronto per Intel, quindi l\'installazione automatica non è disponibile. Serve un Mac con chip Apple (M1 o successivi).';
+  if (+os.release().split('.')[0] < 24) return 'serve macOS 15 Sequoia o più recente (Impostazioni di Sistema → Generali → Aggiornamento software): sulle versioni precedenti Homebrew dovrebbe compilare ffmpeg per ore.';
+  return null;
+}
+function runInstaller(job, exe, args, { label, env, okIf } = {}) {
+  return new Promise((resolve, reject) => {
+    const p = spawn(exe, args, { windowsHide: true, env: env || process.env });
+    let out = '';
+    const onData = d => { out = (out + d).slice(-20000); const l = d.toString().trim().split(/\r|\n/).filter(Boolean).pop(); if (l) job.progress = `${label}: ${l.slice(0, 120)}`; };
+    p.stdout.on('data', onData); p.stderr.on('data', onData);
+    p.on('error', e => reject(e));
+    p.on('close', code => (code === 0 || (okIf && okIf.test(out))) ? resolve() : reject(new Error(`${label} ha restituito ${code}: ${out.trim().split('\n').slice(-3).join(' | ')}`)));
+  });
+}
+async function installFfmpeg(job, say) {
+  if (IS_WIN) {
+    say('installo ffmpeg (Gyan.FFmpeg) con winget: può richiedere qualche minuto…');
+    await runInstaller(job, wingetExe(), ['install', '--id', 'Gyan.FFmpeg', '-e', '--silent', '--accept-package-agreements', '--accept-source-agreements', '--disable-interactivity'],
+      { label: 'winget', okIf: /already installed|già installat/i })
+      .catch(e => { throw e.code === 'ENOENT' ? new Error(`winget non disponibile (${e.message}). Installa "App Installer" dal Microsoft Store, poi riprova.`) : e; });
+  } else if (IS_MAC) {
+    const blocker = macBlocker(); if (blocker) throw new Error(blocker);
+    const brew = brewExe();
+    if (!brew) throw new Error('Homebrew non è installato. Apri l\'app Terminale, incolla il comando di installazione che trovi su https://brew.sh e premi Invio (chiede la password del Mac). Quando ha finito, chiudi Claude con Cmd+Q, riaprilo e riesegui capcut_setup con install:true.');
+    say('installo ffmpeg-full con Homebrew (ffmpeg con la trascrizione Whisper): circa 1-2 GB, può richiedere 10-20 minuti…');
+    const env = { ...process.env, PATH: `${path.dirname(brew)}:/usr/bin:/bin:/usr/sbin:/sbin`, NONINTERACTIVE: '1', HOMEBREW_NO_ENV_HINTS: '1' };
+    await runInstaller(job, brew, ['install', 'ffmpeg-full'], { label: 'Homebrew', env });
+  } else {
+    throw new Error('installazione automatica disponibile solo su Windows e Mac: installa un ffmpeg con il filtro whisper e indica la cartella in CAPCUT_FFMPEG_DIR.');
+  }
+}
 export function setupStatus() {
   const ff = bin('ffmpeg', true), fp = bin('ffprobe', true);
   whisperOk = null;
   return {
+    platform: IS_MAC ? 'mac' : IS_WIN ? 'windows' : process.platform,
     ffmpeg: ff, ffprobe: fp, ffmpegVersion: ffmpegVersion(), whisperFilter: ff ? hasWhisperFilter() : false,
     model: MODEL_NAME, modelFile: exists(modelPath()) ? modelPath() : null, vadFile: exists(vadPath()) ? vadPath() : null,
     mediaDir: MEDIA_DIR, appDir: APP_DIR,
+    ...(IS_MAC ? { homebrew: brewExe(), macProblem: macBlocker() || undefined } : {}),
   };
 }
 export async function setup(job, { model = MODEL_NAME } = {}) {
   const log = [];
   const say = s => { log.push(s); job.progress = s; };
   if (!bin('ffmpeg', true) || !bin('ffprobe', true) || !hasWhisperFilter()) {
-    if (process.platform !== 'win32') throw new Error('installazione automatica disponibile solo su Windows. Su Mac: brew install ffmpeg (con whisper).');
-    say('installo ffmpeg (Gyan.FFmpeg) con winget: può richiedere qualche minuto…');
-    await new Promise((resolve, reject) => {
-      const p = spawn(wingetExe(), ['install', '--id', 'Gyan.FFmpeg', '-e', '--silent', '--accept-package-agreements', '--accept-source-agreements', '--disable-interactivity'], { windowsHide: true });
-      let out = '';
-      p.stdout.on('data', d => { out += d; const l = d.toString().trim().split(/\r|\n/).pop(); if (l) job.progress = `winget: ${l.slice(0, 120)}`; });
-      p.stderr.on('data', d => { out += d; });
-      p.on('error', e => reject(new Error(`winget non disponibile (${e.message}). Installa "App Installer" dal Microsoft Store, poi riprova.`)));
-      p.on('close', code => (code === 0 || /already installed|già installat/i.test(out)) ? resolve() : reject(new Error(`winget ha restituito ${code}: ${out.trim().split('\n').slice(-3).join(' | ')}`)));
-    });
+    await installFfmpeg(job, say);
     whisperOk = null;
-    if (!bin('ffmpeg', true) || !bin('ffprobe', true)) throw new Error('ffmpeg installato ma non trovato: riavvia Claude Desktop e riprova.');
+    if (!bin('ffmpeg', true) || !bin('ffprobe', true)) throw new Error('ffmpeg installato ma non trovato: chiudi del tutto Claude Desktop, riaprilo e riprova.');
     say(`ffmpeg pronto: ${bin('ffmpeg')}`);
     if (!hasWhisperFilter()) say('attenzione: questo ffmpeg non ha il filtro whisper (trascrizione non disponibile).');
   } else say(`ffmpeg già presente: ${bin('ffmpeg')}`);
@@ -457,7 +499,7 @@ export async function ffmpegRaw(job, args) {
 // ---------- browsing (Claude Desktop has no file access of its own) ----------
 const MEDIA_EXT = /\.(mp4|mov|m4v|mkv|webm|avi|mts|mp3|wav|m4a|aac|flac|ogg|png|jpe?g|webp|gif|heic)$/i;
 export function listFiles(dir, { all = false, limit = 200 } = {}) {
-  const roots = dir ? [dir] : [MEDIA_DIR, path.join(os.homedir(), 'Desktop'), path.join(os.homedir(), 'Videos'), path.join(os.homedir(), 'Downloads'), path.join(os.homedir(), 'Documents')];
+  const roots = dir ? [dir] : [MEDIA_DIR, path.join(os.homedir(), 'Desktop'), VIDEOS_DIR, path.join(os.homedir(), 'Downloads'), path.join(os.homedir(), 'Documents'), path.join(os.homedir(), 'Music')];
   if (!dir) return { hint: 'cartelle comuni: passa una di queste come dir', folders: roots.filter(d => fs.existsSync(d)) };
   if (!fs.existsSync(dir)) throw new Error(`cartella non trovata: ${dir}`);
   const entries = fs.readdirSync(dir, { withFileTypes: true });

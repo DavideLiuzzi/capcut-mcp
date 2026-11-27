@@ -7,3 +7,4 @@
 /mcp.json.example
 *.mcpbak
 *.tmp
+/docs/

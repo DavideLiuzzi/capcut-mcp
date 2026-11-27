@@ -4,15 +4,21 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import crypto from 'crypto';
-import { execSync } from 'child_process';
+import { execSync, execFileSync } from 'child_process';
 import { probeSync, cfg, APP_DIR } from './media.js';
 
 // ---- where the drafts live (override with CAPCUT_DRAFTS_DIR) ----
+const IS_MAC = process.platform === 'darwin';
 const STD_WIN = path.join(os.homedir(), 'AppData/Local/CapCut/User Data/Projects/com.lveditor.draft');
 const STD_MAC = path.join(os.homedir(), 'Movies/CapCut/User Data/Projects/com.lveditor.draft');
-const CANDIDATES = [cfg(process.env.CAPCUT_DRAFTS_DIR), STD_WIN, STD_MAC, 'D:/Capcut/CapCut Drafts'].filter(Boolean);
+// Mac App Store build (sandboxed): only looked at when the standard folder is missing
+const STD_MAC_STORE = path.join(os.homedir(), 'Library/Containers/com.lemon.lvoverseas/Data/Movies/CapCut/User Data/Projects/com.lveditor.draft');
+const CANDIDATES = [cfg(process.env.CAPCUT_DRAFTS_DIR), ...(IS_MAC ? [STD_MAC, STD_MAC_STORE] : [STD_WIN, STD_MAC, 'D:/Capcut/CapCut Drafts'])].filter(Boolean);
 const isDir = d => { try { return fs.statSync(d).isDirectory(); } catch { return false; } };
-export const DRAFTS_DIR = CANDIDATES.find(isDir) || (process.platform === 'win32' ? STD_WIN : STD_MAC);
+export const DRAFTS_DIR = CANDIDATES.find(isDir) || (IS_MAC ? STD_MAC : STD_WIN);
+// the timeline JSON: draft_content.json on Windows, draft_info.json on Mac (some builds keep both)
+const CONTENT_FILES = IS_MAC ? ['draft_info.json', 'draft_content.json'] : ['draft_content.json', 'draft_info.json'];
+const contentFile = dir => { for (const f of CONTENT_FILES) { const p = path.join(dir, f); if (fs.existsSync(p)) return p; } return null; };
 // optional: a draft known to contain a text layer (otherwise we search all drafts for one)
 const TEMPLATE_DRAFT = cfg(process.env.CAPCUT_TEMPLATE_DRAFT);
 const BACKUP_DIR = path.join(APP_DIR, 'backups');
@@ -65,7 +71,7 @@ function fallbackTemplates() {
   if (TEMPLATE_DRAFT) names.push(TEMPLATE_DRAFT);
   for (const d of listDrafts()) if (d.name !== TEMPLATE_DRAFT) names.push(d.name);
   for (const name of names) {
-    let c; try { c = readJson(path.join(DRAFTS_DIR, name, 'draft_content.json')); } catch { continue; }
+    let c; try { c = readJson(contentFile(path.join(DRAFTS_DIR, name))); } catch { continue; }
     const h = harvest(c);
     for (const k of ['video', 'image', 'audio', 'text']) if (!acc[k] && h[k]) { acc[k] = h[k]; acc[k].from = name; }
     for (const k of Object.keys(h.tracks)) if (!acc.tracks[k]) acc.tracks[k] = h.tracks[k];
@@ -76,32 +82,40 @@ function fallbackTemplates() {
 
 export function listDrafts() {
   let names = [];
-  try { names = fs.readdirSync(DRAFTS_DIR).filter(n => fs.existsSync(path.join(DRAFTS_DIR, n, 'draft_content.json'))); } catch {}
+  try { names = fs.readdirSync(DRAFTS_DIR).filter(n => contentFile(path.join(DRAFTS_DIR, n))); } catch {}
   return names.map(name => {
     const dir = path.join(DRAFTS_DIR, name);
     let dur = null, mtime = 0;
-    try { const p = path.join(dir, 'draft_content.json'); mtime = fs.statSync(p).mtimeMs; dur = readJson(p).duration / US; } catch {}
+    try { const p = contentFile(dir); mtime = fs.statSync(p).mtimeMs; dur = readJson(p).duration / US; } catch {}
     return { name, durationSec: dur != null ? r3(dur) : null, modified: new Date(mtime).toISOString().slice(0, 16).replace('T', ' '), locked: fs.existsSync(path.join(dir, '.locked')), _m: mtime };
   }).sort((a, b) => b._m - a._m).map(({ _m, ...d }) => d);
 }
 
 // is CapCut running? (writing while open gets clobbered by autosave)
 export function capcutRunning() {
-  if (process.platform !== 'win32') return false;
-  try { return /CapCut\.exe/i.test(execSync('tasklist /FI "IMAGENAME eq CapCut.exe" /NH', { encoding: 'utf8', windowsHide: true })); }
-  catch { return false; }
+  if (process.platform === 'win32') {
+    try { return /CapCut\.exe/i.test(execSync('tasklist /FI "IMAGENAME eq CapCut.exe" /NH', { encoding: 'utf8', windowsHide: true })); }
+    catch { return false; }
+  }
+  if (IS_MAC) {
+    // main executable of CapCut.app (helpers live under Contents/Frameworks); pgrep exits 1 when nothing matches
+    try { execFileSync('/usr/bin/pgrep', ['-f', '/CapCut[^/]*\\.app/Contents/MacOS/'], { stdio: 'ignore' }); return true; }
+    catch { return false; }
+  }
+  return false;
 }
+const CLOSE_HINT = IS_MAC ? 'Chiudilo del tutto con Cmd+Q (chiudere la finestra non basta)' : 'Chiudilo del tutto (anche dall\'icona vicino all\'orologio)';
 function guardClosed(dir, force) {
   if (force) return;
-  if (dir && fs.existsSync(path.join(dir, '.locked'))) throw new Error('la bozza è aperta in CapCut (.locked). Chiudi CapCut e riprova: l\'autosalvataggio cancellerebbe le modifiche.');
-  if (capcutRunning()) throw new Error('CapCut è aperto. Chiudilo del tutto e riprova: l\'autosalvataggio cancellerebbe le modifiche.');
+  if (dir && fs.existsSync(path.join(dir, '.locked'))) throw new Error(`la bozza è aperta in CapCut (.locked). ${CLOSE_HINT} e riprova: l'autosalvataggio cancellerebbe le modifiche.`);
+  if (capcutRunning()) throw new Error(`CapCut è aperto. ${CLOSE_HINT} e riprova: l'autosalvataggio cancellerebbe le modifiche.`);
 }
 
 // ---- backups (outside the CapCut folder, so CapCut never sees them) ----
 function timelineFiles(dir) {
   const tl = path.join(dir, 'Timelines');
   if (!isDir(tl)) return [];
-  return fs.readdirSync(tl).map(id => ({ id, p: path.join(tl, id, 'draft_content.json') })).filter(x => fs.existsSync(x.p));
+  return fs.readdirSync(tl).map(id => ({ id, p: isDir(path.join(tl, id)) && contentFile(path.join(tl, id)) })).filter(x => x.p);
 }
 export function backupDraft(name, reason = '') {
   const dir = path.join(DRAFTS_DIR, name);
@@ -110,8 +124,8 @@ export function backupDraft(name, reason = '') {
   while (fs.existsSync(path.join(BACKUP_DIR, safeName(name), stamp))) stamp = `${base}_${n++}`;   // never overwrite a backup
   const dest = path.join(BACKUP_DIR, safeName(name), stamp);
   fs.mkdirSync(dest, { recursive: true });
-  for (const f of ['draft_content.json', 'draft_meta_info.json']) if (fs.existsSync(path.join(dir, f))) fs.copyFileSync(path.join(dir, f), path.join(dest, f));
-  for (const { id, p } of timelineFiles(dir)) { fs.mkdirSync(path.join(dest, 'Timelines', id), { recursive: true }); fs.copyFileSync(p, path.join(dest, 'Timelines', id, 'draft_content.json')); }
+  for (const f of [...CONTENT_FILES, 'draft_meta_info.json']) if (fs.existsSync(path.join(dir, f))) fs.copyFileSync(path.join(dir, f), path.join(dest, f));
+  for (const { id, p } of timelineFiles(dir)) { fs.mkdirSync(path.join(dest, 'Timelines', id), { recursive: true }); fs.copyFileSync(p, path.join(dest, 'Timelines', id, path.basename(p))); }
   if (reason) fs.writeFileSync(path.join(dest, 'reason.txt'), reason);
   // prune old ones
   const all = fs.readdirSync(path.join(BACKUP_DIR, safeName(name))).sort();
@@ -125,7 +139,7 @@ export function listBackups(name) {
     draft: name, folder: d,
     backups: fs.readdirSync(d).sort().reverse().map(id => {
       let dur = null, reason = '';
-      try { dur = r3(readJson(path.join(d, id, 'draft_content.json')).duration / US); } catch {}
+      try { dur = r3(readJson(contentFile(path.join(d, id))).duration / US); } catch {}
       try { reason = fs.readFileSync(path.join(d, id, 'reason.txt'), 'utf8'); } catch {}
       return { id, durationSec: dur, reason };
     }),
@@ -133,15 +147,14 @@ export function listBackups(name) {
 }
 export function restoreBackup(name, id, { force = false } = {}) {
   const dir = path.join(DRAFTS_DIR, name), src = path.join(BACKUP_DIR, safeName(name), id);
-  if (!fs.existsSync(path.join(src, 'draft_content.json'))) throw new Error(`backup non trovato: ${id}`);
+  if (!contentFile(src)) throw new Error(`backup non trovato: ${id}`);
   guardClosed(dir, force);
   const before = backupDraft(name, `prima del ripristino di ${id}`);
-  fs.copyFileSync(path.join(src, 'draft_content.json'), path.join(dir, 'draft_content.json'));
-  if (fs.existsSync(path.join(src, 'draft_meta_info.json'))) fs.copyFileSync(path.join(src, 'draft_meta_info.json'), path.join(dir, 'draft_meta_info.json'));
+  for (const f of [...CONTENT_FILES, 'draft_meta_info.json']) if (fs.existsSync(path.join(src, f))) fs.copyFileSync(path.join(src, f), path.join(dir, f));
   const tl = path.join(src, 'Timelines');
   if (isDir(tl)) for (const tid of fs.readdirSync(tl)) {
     const target = path.join(dir, 'Timelines', tid);
-    if (isDir(target)) fs.copyFileSync(path.join(tl, tid, 'draft_content.json'), path.join(target, 'draft_content.json'));
+    if (isDir(target)) for (const f of CONTENT_FILES) if (fs.existsSync(path.join(tl, tid, f))) fs.copyFileSync(path.join(tl, tid, f), path.join(target, f));
   }
   return { restored: id, draft: name, safetyBackup: before };
 }
@@ -154,8 +167,9 @@ export class CapCutDraft {
   constructor(name) {
     this.name = name;
     this.dir = path.join(DRAFTS_DIR, name);
-    if (!fs.existsSync(path.join(this.dir, 'draft_content.json'))) throw new Error(`bozza non trovata: "${name}" (in ${DRAFTS_DIR}). Usa capcut_list_drafts per i nomi esatti.`);
-    this.content = readJson(path.join(this.dir, 'draft_content.json'));
+    this.file = contentFile(this.dir);
+    if (!this.file) throw new Error(`bozza non trovata: "${name}" (in ${DRAFTS_DIR}). Usa capcut_list_drafts per i nomi esatti.`);
+    this.content = readJson(this.file);
     this.metaPath = path.join(this.dir, 'draft_meta_info.json');
     this.meta = fs.existsSync(this.metaPath) ? readJson(this.metaPath) : null;
     this._tpl = null;
@@ -511,10 +525,12 @@ export class CapCutDraft {
     const backup = backupDraft(this.name, reason || 'prima di un salvataggio dall\'MCP');
     if (this.meta && 'tm_duration' in this.meta) this.meta.tm_duration = this.content.duration;
     const json = JSON.stringify(this.content);
-    writeAtomic(path.join(this.dir, 'draft_content.json'), json);
-    // CapCut keeps an identical copy per timeline: update it too, or CapCut may load the old one
+    writeAtomic(this.file, json);
+    // CapCut keeps an identical copy per timeline (and some builds both draft_content and draft_info):
+    // update those too, or CapCut may load the old one
     let mirrored = 0;
-    for (const { p } of timelineFiles(this.dir)) {
+    const twins = CONTENT_FILES.map(f => path.join(this.dir, f)).filter(p => p !== this.file && fs.existsSync(p)).map(p => ({ p }));
+    for (const { p } of [...twins, ...timelineFiles(this.dir)]) {
       let same = true; try { const t = readJson(p); same = !t.id || !this.content.id || t.id === this.content.id; } catch {}
       if (same) { writeAtomic(p, json); mirrored++; }
     }
@@ -544,7 +560,7 @@ function styleName(kind, m) {
 export function styleLibrary() {
   const seen = new Map();
   for (const d of listDrafts()) {
-    let c; try { c = readJson(path.join(DRAFTS_DIR, d.name, 'draft_content.json')); } catch { continue; }
+    let c; try { c = readJson(contentFile(path.join(DRAFTS_DIR, d.name))); } catch { continue; }
     for (const tr of c.tracks || []) for (const s of tr.segments || []) for (const id of s.extra_material_refs || []) {
       const [k, m] = findMat(c, id);
       if (!STYLE_KINDS.includes(k)) continue;
@@ -560,7 +576,7 @@ export function styleLibrary() {
 // clone a whole draft folder to a new name, registering it so CapCut lists it
 export function cloneDraft(base, newName, { empty = false, force = false } = {}) {
   const src = path.join(DRAFTS_DIR, base), dst = path.join(DRAFTS_DIR, newName);
-  if (!fs.existsSync(path.join(src, 'draft_content.json'))) throw new Error(`bozza di partenza non trovata: ${base}`);
+  if (!contentFile(src)) throw new Error(`bozza di partenza non trovata: ${base}`);
   if (fs.existsSync(dst)) throw new Error(`esiste già una bozza chiamata: ${newName}`);
   guardClosed(null, force);
   fs.cpSync(src, dst, { recursive: true, filter: s => !/(\.locked|\.mcpbak|\.tmp)$/.test(s) });
@@ -580,7 +596,7 @@ export function cloneDraft(base, newName, { empty = false, force = false } = {})
     for (const tr of d.content.tracks) tr.segments = [];
     d.content.duration = 0;
     const json = JSON.stringify(d.content);
-    writeAtomic(path.join(dst, 'draft_content.json'), json);
+    for (const f of CONTENT_FILES) if (fs.existsSync(path.join(dst, f))) writeAtomic(path.join(dst, f), json);
     for (const { p } of timelineFiles(dst)) writeAtomic(p, json);
   }
   // register in CapCut's draft index
